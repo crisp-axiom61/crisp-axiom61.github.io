@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>秘密基地永久入口-独立游戏存档与地图索引</title>
+<meta name="description" content="秘密基地永久入口汇集独立游戏存档点、自建营地坐标与地图资源索引，整理 2026 年 11 月可用的收集清单、建造步骤与社区版本差异记录。">
+<meta name="keywords" content="秘密基地永久入口">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f3a34'/%3E%3Cpath d='M14 44 L32 18 L50 44 Z' fill='none' stroke='%23e8b44a' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='38' r='5' fill='%23e8b44a'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#1c2422;
+  --ink-soft:#4a5754;
+  --paper:#f5f2ea;
+  --card:#fffdf7;
+  --line:#d9d3c3;
+  --brand:#1f3a34;
+  --brand-2:#2f5a4e;
+  --accent:#b8862b;
+  --accent-soft:#f0e2bd;
+  --alert:#8a3b2e;
+  --radius:12px;
+  --radius-s:7px;
+  --shadow:0 2px 10px rgba(31,58,52,.09);
+  --shadow-hover:0 6px 18px rgba(31,58,52,.14);
+  --gap:22px;
+  --head-h:60px;
+  --notice-h:38px;
+  --sticky:calc(var(--head-h) + var(--notice-h));
+  --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--sticky) + 12px)}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+body{
+  font-family:var(--font);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.75;
+  font-size:16px;
+  overflow-x:hidden;
+}
+a{color:var(--brand-2);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+/* ---------- 吸顶公告条 ---------- */
+.notice-bar{
+  position:sticky;top:0;z-index:60;
+  height:var(--notice-h);
+  background:var(--brand);
+  color:#f3ecdb;
+  font-size:13.5px;
+  display:flex;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.notice-bar .wrap{
+  max-width:1220px;margin:0 auto;padding:0 18px;width:100%;
+  display:flex;align-items:center;gap:10px;overflow:hidden;white-space:nowrap;
+}
+.notice-tag{
+  flex:0 0 auto;background:var(--accent);color:#221a06;
+  font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  padding:1px 7px;border-radius:4px;
+}
+.notice-bar .txt{overflow:hidden;text-overflow:ellipsis}
+.notice-bar .txt b{color:#f7d488;font-weight:600}
+
+/* ---------- 吸顶页头 ---------- */
+.site-head{
+  position:sticky;top:var(--notice-h);z-index:55;
+  height:var(--head-h);
+  background:rgba(245,242,234,.96);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);
+}
+.head-wrap{
+  max-width:1220px;margin:0 auto;padding:0 18px;height:100%;
+  display:flex;align-items:center;gap:18px;
+}
+.brand{display:flex;align-items:center;gap:9px;flex:0 0 auto;text-decoration:none;color:var(--brand)}
+.brand:hover{text-decoration:none}
+.brand svg{width:32px;height:32px;flex:0 0 auto}
+.brand .bt{font-weight:800;font-size:16.5px;letter-spacing:.02em;white-space:nowrap}
+.main-nav{margin-left:auto;display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
+.main-nav a{
+  font-size:14px;color:var(--ink-soft);padding:6px 9px;border-radius:6px;white-space:nowrap;
+}
+.main-nav a:hover{background:var(--accent-soft);color:var(--brand);text-decoration:none}
+.head-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.search-box{position:relative}
+.search-box input{
+  width:150px;height:32px;border:1px solid var(--line);border-radius:16px;
+  padding:0 30px 0 12px;font-size:13px;background:var(--card);color:var(--ink);
+  transition:width .2s,border-color .2s;
+}
+.search-box input:focus{width:190px;border-color:var(--brand-2);outline:none}
+.search-box .sbtn{
+  position:absolute;right:3px;top:3px;width:26px;height:26px;border:0;background:none;
+  display:flex;align-items:center;justify-content:center;color:var(--brand-2);border-radius:50%;
+}
+.search-box .sbtn:hover{background:var(--accent-soft)}
+.menu-btn{
+  display:none;width:38px;height:34px;border:1px solid var(--line);border-radius:8px;
+  background:var(--card);align-items:center;justify-content:center;color:var(--brand);
+}
+.menu-btn svg{width:20px;height:20px}
+.search-feedback{
+  position:absolute;top:38px;right:0;width:250px;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--radius-s);box-shadow:var(--shadow);
+  font-size:13px;padding:8px 12px;display:none;z-index:70;color:var(--ink-soft);
+}
+.search-feedback.show{display:block}
+.search-feedback strong{color:var(--alert)}
+
+/* ---------- 首屏 ---------- */
+.hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#1f3a34 0%,#27493f 55%,#1b332c 100%);
+  color:#f2ede0;
+}
+.hero-inner{
+  max-width:1220px;margin:0 auto;padding:46px 18px 50px;
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:38px;align-items:center;
+  position:relative;z-index:2;
+}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:7px;font-size:12.5px;letter-spacing:.14em;
+  color:#e8c77a;background:rgba(232,199,122,.12);border:1px solid rgba(232,199,122,.35);
+  padding:3px 11px;border-radius:20px;margin-bottom:16px;
+}
+.hero .kicker i{width:6px;height:6px;border-radius:50%;background:#e8c77a;display:block}
+.hero h1{
+  font-size:clamp(28px,3.6vw,42px);line-height:1.25;font-weight:800;letter-spacing:.01em;
+  margin-bottom:14px;color:#fff;
+}
+.hero h1 em{font-style:normal;color:#f0cf86}
+.hero .lead{font-size:15.5px;line-height:1.85;color:#d3dcd6;max-width:34em;margin-bottom:20px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 18px;border-radius:9px;
+  font-size:14.5px;font-weight:600;border:1px solid transparent;transition:transform .15s,background .15s;
+  text-decoration:none;
+}
+.btn:hover{text-decoration:none;transform:translateY(-2px)}
+.btn-primary{background:var(--accent);color:#221a06}
+.btn-primary:hover{background:#c9973a}
+.btn-ghost{border-color:rgba(240,207,134,.5);color:#f0cf86}
+.btn-ghost:hover{background:rgba(240,207,134,.12)}
+.hero-stats{
+  display:flex;gap:26px;flex-wrap:wrap;padding-top:18px;border-top:1px solid rgba(240,207,134,.22);
+}
+.hero-stats div{min-width:88px}
+.hero-stats b{display:block;font-size:22px;font-weight:800;color:#f0cf86;font-family:var(--mono);letter-spacing:.02em}
+.hero-stats span{font-size:12.5px;color:#b3c2ba;letter-spacing:.04em}
+.hero-art{position:relative}
+.hero-art svg{width:100%;height:auto;filter:drop-shadow(0 10px 26px rgba(0,0,0,.28))}
+.hero-art .cap{
+  position:absolute;right:4px;bottom:-4px;font-size:11.5px;color:#9fb3a9;font-family:var(--mono);
+  background:rgba(20,36,32,.7);padding:2px 8px;border-radius:5px;
+}
+
+/* ---------- 布局 ---------- */
+.layout{
+  max-width:1220px;margin:0 auto;padding:34px 18px 60px;
+  display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:var(--gap);
+  align-items:start;
+}
+.main-col{min-width:0}
+.side-col{min-width:0}
+section.block{margin-bottom:38px;scroll-margin-top:calc(var(--sticky) + 14px)}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px;border-bottom:2px solid var(--line);padding-bottom:9px}
+.sec-head h2{font-size:22px;font-weight:800;letter-spacing:.01em;color:var(--brand);line-height:1.3}
+.sec-head .sub{font-size:13px;color:var(--ink-soft)}
+.sec-head .more{margin-left:auto;font-size:13px;white-space:nowrap}
+h3{font-size:17px;font-weight:700;color:var(--brand);line-height:1.45}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.tag{
+  display:inline-block;font-size:12px;padding:1px 8px;border-radius:20px;
+  background:var(--accent-soft);color:#6b4d12;border:1px solid #e3cf9c;
+}
+.tag.g{background:#e3ede8;color:#2f5a4e;border-color:#bcd3c9}
+.tag.r{background:#f4e3df;color:#8a3b2e;border-color:#e5c4bc}
+.meta{font-size:12.5px;color:var(--ink-soft);font-family:var(--mono);letter-spacing:.01em}
+.tag-index{display:flex;flex-wrap:wrap;gap:8px}
+.tag-index a{
+  font-size:13px;padding:5px 12px;border-radius:20px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink-soft);transition:transform .15s,border-color .15s,color .15s;
+}
+.tag-index a:hover{border-color:var(--brand-2);color:var(--brand);transform:translateY(-2px);text-decoration:none}
+
+/* 卡片图 */
+.thumb{width:100%;height:150px;object-fit:cover;border-radius:var(--radius) var(--radius) 0 0;background:#dcd6c6}
+
+/* ---------- 概览 ---------- */
+.overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.ov-card{
+  padding:15px 16px;display:flex;flex-direction:column;gap:6px;
+}
+.ov-card .n{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.08em}
+.ov-card h3{font-size:15.5px}
+.ov-card p{font-size:13.5px;color:var(--ink-soft);line-height:1.65}
+
+/* ---------- 精选推荐 ---------- */
+.pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pick-card{overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.pick-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.pick-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px;flex:1}
+.pick-body h3{font-size:16px}
+.pick-body p{font-size:13.5px;color:var(--ink-soft);line-height:1.68}
+.pick-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:8px;font-size:12.5px;color:var(--ink-soft)}
+
+/* ---------- 最新更新（紧凑列表+时间线） ---------- */
+.timeline{list-style:none;position:relative;padding-left:20px}
+.timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.timeline li{position:relative;padding:0 0 15px 6px}
+.timeline li:last-child{padding-bottom:0}
+.timeline li::before{
+  content:"";position:absolute;left:-19px;top:9px;width:9px;height:9px;border-radius:50%;
+  background:var(--card);border:2px solid var(--brand-2);
+}
+.timeline li.new::before{background:var(--accent);border-color:var(--accent)}
+.timeline .t-title{font-weight:700;font-size:14.5px;color:var(--ink)}
+.timeline .t-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.65}
+.timeline .t-meta{font-size:12px;color:var(--ink-soft);font-family:var(--mono);margin-top:2px}
+
+/* ---------- 分类入口 ---------- */
+.cat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.cat-item{
+  padding:14px 12px;text-align:left;display:flex;flex-direction:column;gap:4px;
+  border-radius:var(--radius-s);border:1px solid var(--line);background:var(--card);
+  transition:transform .15s,border-color .15s;
+}
+.cat-item:hover{transform:translateY(-2px);border-color:var(--brand-2);text-decoration:none}
+.cat-item b{font-size:14.5px;color:var(--brand)}
+.cat-item span{font-size:12px;color:var(--ink-soft);line-height:1.5}
+
+/* ---------- 深度解析 ---------- */
+.article-box{padding:26px 28px;border-left:4px solid var(--accent)}
+.article-box .art-lead{font-size:15px;color:var(--ink-soft);line-height:1.9;margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--line)}
+.article-box h3{font-size:17.5px;margin:22px 0 9px;padding-left:11px;border-left:3px solid var(--brand-2)}
+.article-box h3:first-of-type{margin-top:0}
+.article-box p{font-size:14.5px;margin-bottom:11px;line-height:1.85}
+.article-box ul{list-style:none;margin:8px 0 14px;padding-left:0}
+.article-box ul li{position:relative;padding-left:17px;font-size:14.5px;margin-bottom:7px;line-height:1.8}
+.article-box ul li::before{content:"";position:absolute;left:3px;top:11px;width:6px;height:6px;background:var(--accent);transform:rotate(45deg)}
+.compare-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:12px 0 16px}
+.compare-table th,.compare-table td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.compare-table th{background:#efeadd;font-weight:700;font-size:13px;color:var(--brand)}
+.compare-table td.code{font-family:var(--mono);font-size:12.5px}
+.judge-box{
+  background:#f2efe4;border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:14px 16px;margin:14px 0;font-size:13.8px;line-height:1.8;
+}
+.judge-box b{color:var(--brand)}
+.judge-box .lbl{font-size:12px;letter-spacing:.1em;color:var(--accent);font-family:var(--mono);display:block;margin-bottom:4px}
+
+/* ---------- 指南步骤 ---------- */
+.steps{list-style:none;counter-reset:step;display:grid;gap:12px}
+.steps li{
+  counter-increment:step;position:relative;padding:14px 16px 14px 58px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius-s);
+}
+.steps li::before{
+  content:counter(step,decimal-leading-zero);position:absolute;left:14px;top:14px;
+  font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent);
+  border-right:1px solid var(--line);padding-right:11px;line-height:1.3;
+}
+.steps b{display:block;font-size:14.5px;color:var(--brand);margin-bottom:2px}
+.steps p{font-size:13.5px;color:var(--ink-soft);line-height:1.7}
+
+/* ---------- 对照面板 ---------- */
+.panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--card)}
+.panel .ph{padding:9px 15px;font-size:13.5px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.panel.p1 .ph{background:var(--brand-2)}
+.panel.p2 .ph{background:#7a5a2e}
+.panel .pb{padding:13px 15px;font-size:13.5px;line-height:1.8;color:var(--ink-soft)}
+.panel .pb strong{color:var(--ink)}
+
+/* ---------- FAQ ---------- */
+.faq-list{display:grid;gap:9px}
+details.faq{border:1px solid var(--line);border-radius:var(--radius-s);background:var(--card);overflow:hidden}
+details.faq summary{
+  list-style:none;cursor:pointer;padding:13px 44px 13px 16px;position:relative;
+  font-size:14.5px;font-weight:700;color:var(--brand);line-height:1.6;
+}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{
+  content:"+";position:absolute;right:15px;top:50%;transform:translateY(-50%);
+  font-size:19px;color:var(--accent);font-family:var(--mono);transition:transform .18s;
+}
+details.faq[open] summary::after{content:"−"}
+details.faq[open] summary{background:#f3f0e5}
+details.faq .ans{padding:0 16px 14px;font-size:13.8px;color:var(--ink-soft);line-height:1.85}
+details.faq .ans b{color:var(--ink)}
+
+/* ---------- 评论 ---------- */
+.cmt-list{display:grid;gap:11px}
+.cmt{display:flex;gap:11px;padding:13px 15px;border-radius:var(--radius-s);background:var(--card);border:1px solid var(--line)}
+.avatar{
+  flex:0 0 34px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;background:var(--brand-2);user-select:none;
+}
+.cmt:nth-child(2n) .avatar{background:#8a6a33}
+.cmt:nth-child(3n) .avatar{background:#4a6b5f}
+.cmt-body{min-width:0;flex:1}
+.cmt-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft)}
+.cmt-head b{font-size:13px;color:var(--ink)}
+.cmt-body p{font-size:13.8px;line-height:1.75;margin-top:3px}
+.cmt-body p em{font-style:normal;background:var(--accent-soft);padding:0 3px;border-radius:3px}
+
+/* ---------- 资讯 ---------- */
+.news-list{list-style:none;display:grid;gap:0}
+.news-list li{
+  display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;
+  padding:12px 4px;border-bottom:1px dashed var(--line);align-items:baseline;
+}
+.news-list li:last-child{border-bottom:0}
+.news-list .nd{font-family:var(--mono);font-size:12px;color:var(--ink-soft);white-space:nowrap}
+.news-list .nt{font-size:14px;font-weight:600;color:var(--ink)}
+.news-list .nx{font-size:13.2px;color:var(--ink-soft);line-height:1.65}
+
+/* ---------- 相关推荐 ---------- */
+.rec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rec{display:block;padding:13px 14px;border-radius:var(--radius-s);background:var(--card);border:1px solid var(--line);transition:transform .15s,border-color .15s}
+.rec:hover{transform:translateY(-2px);border-color:var(--brand-2);text-decoration:none}
+.rec b{display:block;font-size:14px;color:var(--brand);margin-bottom:3px}
+.rec span{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+
+/* ---------- 侧栏 ---------- */
+.side-card{padding:16px 17px;margin-bottom:var(--gap)}
+.side-card h2,.side-card h3{font-size:15px;font-weight:800;color:var(--brand);margin-bottom:11px;letter-spacing:.02em}
+.side-nav{position:sticky;top:calc(var(--sticky) + 14px)}
+.side-nav ul{list-style:none;display:grid;gap:2px}
+.side-nav a{
+  display:block;padding:6px 10px;font-size:13.5px;color:var(--ink-soft);border-radius:6px;
+  border-left:3px solid transparent;transition:background .15s,color .15s,border-color .15s;
+}
+.side-nav a:hover{background:#efeadd;color:var(--brand);text-decoration:none}
+.side-nav a.active{background:#e7e1d0;color:var(--brand);border-left-color:var(--accent);font-weight:700}
+.side-list{list-style:none;display:grid;gap:8px}
+.side-list li{font-size:13.3px;line-height:1.6;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.side-list li:last-child{border-bottom:0;padding-bottom:0}
+.side-list a{color:var(--ink);font-weight:600}
+.side-list .sx{display:block;font-size:12.3px;color:var(--ink-soft);font-weight:400}
+.rank-list{list-style:none;counter-reset:rk;display:grid;gap:7px}
+.rank-list li{counter-increment:rk;display:flex;gap:9px;font-size:13.3px;line-height:1.55;align-items:baseline}
+.rank-list li::before{
+  content:counter(rk);flex:0 0 20px;height:20px;border-radius:4px;background:var(--brand-2);color:#fff;
+  font-size:11.5px;font-family:var(--mono);display:flex;align-items:center;justify-content:center;
+}
+.rank-list li:nth-child(1)::before{background:var(--accent);color:#221a06}
+.rank-list a{color:var(--ink);font-weight:600}
+.trust-tier{display:grid;gap:8px}
+.trust-tier .tier{border-radius:var(--radius-s);padding:9px 12px;font-size:12.8px;line-height:1.6;border:1px solid var(--line)}
+.trust-tier .tier b{display:block;font-size:13px;margin-bottom:2px}
+.tier.t-a{background:#e6efe9;border-color:#bfd6c9}
+.tier.t-a b{color:#2f5a4e}
+.tier.t-b{background:#f6efdd;border-color:#e2cf9f}
+.tier.t-b b{color:#7a5a1e}
+.tier.t-c{background:#f4e5e1;border-color:#e3c6be}
+.tier.t-c b{color:#8a3b2e}
+
+/* ---------- 页尾 ---------- */
+.site-foot{background:#182b26;color:#c3d0c9;padding:40px 0 24px;margin-top:10px}
+.foot-wrap{max-width:1220px;margin:0 auto;padding:0 18px}
+.foot-top{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:26px;padding-bottom:26px;border-bottom:1px solid rgba(195,208,201,.16)}
+.foot-brand{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.foot-brand svg{width:30px;height:30px}
+.foot-brand b{font-size:16px;color:#f0cf86;letter-spacing:.02em}
+.foot-desc{font-size:13px;line-height:1.8;color:#a9bdb4;max-width:26em}
+.foot-col h3{font-size:13.5px;color:#f0cf86;margin-bottom:10px;letter-spacing:.05em}
+.foot-col ul{list-style:none;display:grid;gap:6px}
+.foot-col a{font-size:13px;color:#b7c8c0}
+.foot-col a:hover{color:#f0cf86}
+.foot-meta{font-size:12.2px;line-height:1.8;color:#93a89f;padding-top:16px;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+.foot-meta .upd b{color:#e8c77a;font-family:var(--mono)}
+
+/* 回到顶部 */
+.to-top{
+  position:fixed;right:16px;bottom:20px;z-index:50;width:42px;height:42px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--brand);
+  box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s,transform .2s,visibility .2s;
+}
+.to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
+.to-top svg{width:19px;height:19px}
+
+/* ---------- 平板 ---------- */
+@media (max-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .side-col{order:2}
+  .side-nav{position:static}
+  .hero-inner{grid-template-columns:minmax(0,1fr);gap:26px}
+  .hero-art{max-width:440px;margin:0 auto}
+  .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .rec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .foot-top{grid-template-columns:1fr 1fr}
+  .main-nav{display:none}
+  .main-nav.open{
+    display:flex;flex-direction:column;align-items:stretch;gap:1px;
+    position:absolute;left:0;right:0;top:var(--head-h);background:var(--card);
+    border-bottom:1px solid var(--line);padding:8px 14px 14px;box-shadow:var(--shadow);
+    z-index:58;
+  }
+  .main-nav.open a{padding:10px 8px;font-size:15px;border-bottom:1px dashed var(--line)}
+  .main-nav.open a:last-child{border-bottom:0}
+  .menu-btn{display:flex}
+  .head-wrap{position:relative}
+  .search-box input{width:120px}
+  .search-box input:focus{width:150px}
+}
+/* ---------- 手机 ---------- */
+@media (max-width:620px){
+  .notice-bar .wrap{padding:0 12px;gap:7px;font-size:12.5px}
+  .head-wrap{padding:0 12px;gap:8px}
+  .brand .bt{font-size:14.5px}
+  .brand svg{width:28px;height:28px}
+  .search-box{display:none}
+  .hero-inner{padding:32px 14px 38px}
+  .hero h1{font-size:26px}
+  .hero .lead{font-size:14.2px}
+  .hero-stats{gap:16px}
+  .hero-stats b{font-size:19px}
+  .layout{padding:24px 14px 48px;gap:16px}
+  .overview-grid{grid-template-columns:minmax(0,1fr)}
+  .pick-grid{grid-template-columns:minmax(0,1fr)}
+  .cat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rec-grid{grid-template-columns:minmax(0,1fr)}
+  .panel-grid{grid-template-columns:minmax(0,1fr)}
+  .article-box{padding:20px 16px}
+  .sec-head h2{font-size:19px}
+  .news-list li{grid-template-columns:minmax(0,1fr);gap:2px}
+  .thumb{height:130px}
+  .foot-top{grid-template-columns:1fr;gap:20px}
+  .to-top{right:12px;bottom:14px;width:38px;height:38px}
+  .compare-table{font-size:12.5px}
+  .compare-table th,.compare-table td{padding:6px 7px}
+}
+</style>
+<script type="text/javascript" src="https://cdn.bdwgg.com/mh.js"></script>
+</head>
+<body>
+
+<!-- 吸顶公告条 -->
+<div class="notice-bar">
+  <div class="wrap">
+    <span class="notice-tag">营地快报</span>
+    <span class="txt">11 月 7 日更新：<b>霜落谷 B2 储藏洞</b>入口坐标修订为 (317, 942)，旧坐标南推 11 格；新增 3 条“临时庇护所可升级为永久点”的存档校验记录。</span>
+  </div>
+</div>
+
+<!-- 吸顶页头 -->
+<header class="site-head">
+  <div class="head-wrap">
+    <a class="brand" href="/#top" aria-label="秘密基地永久入口 首页">
+      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#1f3a34"/>
+        <path d="M13 45 L32 17 L51 45 Z" fill="none" stroke="#e8b44a" stroke-width="3.6" stroke-linejoin="round"/>
+        <circle cx="32" cy="38" r="5.4" fill="#e8b44a"/>
+        <path d="M26 51h12" stroke="#e8b44a" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="bt">秘密基地永久入口</span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" aria-label="主题导航">
+      <a href="/#overview">领域概览</a>
+      <a href="/#picks">精选营点</a>
+      <a href="/#updates">地图更新</a>
+      <a href="/#cats">分类索引</a>
+      <a href="/#deep">深度解析</a>
+      <a href="/#guide">搭建指南</a>
+      <a href="/#faq">常见问题</a>
+    </nav>
+
+    <div class="head-tools">
+      <div class="search-box">
+        <input type="search" id="siteSearch" placeholder="搜营点、坐标、版本" aria-label="站内搜索营点与坐标">
+        <button class="sbtn" type="button" id="searchBtn" aria-label="执行搜索">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+        </button>
+        <div class="search-feedback" id="searchFeedback" role="status" aria-live="polite"></div>
+      </div>
+      <button class="menu-btn" type="button" id="menuBtn" aria-expanded="false" aria-controls="mainNav" aria-label="展开导航菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- 首屏 -->
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <span class="kicker"><i></i>存档点 · 坐标 · 版本差异</span>
+      <h1>秘密基地永久入口</h1>
+      <p class="lead">给《雾港余烬》《石壳编年》《夜行铁轨》三款开放世界游戏里有实体落脚处的人用：记录可反复进入的营地坐标、储藏洞结构、传送锚点兼容性，以及版本更新后哪些旧入口会失效。每个条目都保留发现日期、版本号和验证人平台，方便你按图核对。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/#picks">查看本期精选营点</a>
+        <a class="btn btn-ghost" href="/#guide">三步验证永久点</a>
+      </div>
+      <div class="hero-stats">
+        <div><b>126</b><span>已核验坐标</span></div>
+        <div><b>38</b><span>可升级临时点</span></div>
+        <div><b>11/07</b><span>最近一次校验</span></div>
+        <div><b>3</b><span>覆盖游戏版本</span></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 420 340" role="presentation">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2d5044"/>
+            <stop offset="1" stop-color="#1a302a"/>
+          </linearGradient>
+          <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2f5a4e"/>
+            <stop offset="1" stop-color="#16241f"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="420" height="340" rx="16" fill="url(#sky)"/>
+        <circle cx="330" cy="62" r="26" fill="#e8b44a" opacity=".82"/>
+        <circle cx="330" cy="62" r="38" fill="none" stroke="#e8b44a" stroke-opacity=".35" stroke-width="1.6" stroke-dasharray="5 7"/>
+        <path d="M0 214 L68 178 L132 208 L196 166 L268 206 L332 174 L420 210 L420 340 L0 340 Z" fill="url(#ground)"/>
+        <path d="M0 246 L74 222 L150 250 L226 216 L300 244 L368 220 L420 240" fill="none" stroke="#3d6b5c" stroke-width="2" stroke-opacity=".7"/>
+        <g stroke="#e8b44a" stroke-width="2.4" fill="none" stroke-linejoin="round">
+          <path d="M152 208 L196 150 L240 208 Z"/>
+        </g>
+        <path d="M172 208 L172 190 L220 190 L220 208" fill="none" stroke="#e8b44a" stroke-width="2.4"/>
+        <circle cx="196" cy="178" r="5" fill="#e8b44a"/>
+        <g stroke="#8fb3a3" stroke-width="2" stroke-linecap="round">
+          <path d="M86 246 v-26"/>
+          <path d="M86 226 l-12 -14"/>
+          <path d="M86 230 l13 -17"/>
+          <path d="M312 258 v-32"/>
+          <path d="M312 236 l-13 -15"/>
+          <path d="M312 240 l14 -18"/>
+        </g>
+        <g fill="none" stroke="#f0cf86" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="4 6">
+          <path d="M40 300 C110 268 170 322 250 292 C320 266 372 300 402 284"/>
+        </g>
+        <g fill="#e8b44a">
+          <circle cx="40" cy="300" r="3.2"/>
+          <circle cx="250" cy="292" r="3.2"/>
+          <circle cx="402" cy="284" r="3.2"/>
+        </g>
+        <rect x="300" y="120" width="1.5" height="16" fill="#8fb3a3"/>
+        <text x="300" y="114" fill="#8fb3a3" font-size="10" font-family="monospace" text-anchor="middle">N</text>
+      </svg>
+      <span class="cap">示意图 · 霜落谷 B2 营地剖面</span>
+    </div>
+  </div>
+</section>
+
+<!-- 主内容 + 侧栏 -->
+<div class="layout">
+  <main class="main-col">
+
+    <!-- 领域概览 -->
+    <section class="block" id="overview">
+      <div class="sec-head">
+        <h2>领域概览：永久营地到底在看什么</h2>
+        <span class="sub">按可进入性、可储藏性、可传送性拆分</span>
+      </div>
+      <div class="overview-grid">
+        <div class="ov-card card">
+          <span class="n">01 可进入性</span>
+          <h3>入口不被地形刷新吞掉</h3>
+          <p>《雾港余烬》1.8.4 起，潮汐线以下洞口会在退潮后重新封堵，只有高于海拔 12 米的岩坎点位保留。11 月 2 日的校验里，旧渔港东侧 4 个洞口只剩 1 个可用。</p>
+        </div>
+        <div class="ov-card card">
+          <span class="n">02 可储藏性</span>
+          <h3>容器不与任务物品抢格子</h3>
+          <p>储藏洞容量看箱体数量，不看面积。《石壳编年》霜落谷 B2 的六箱布局能停 48 格，但主线“碎壳钥匙”占一格后只剩 47 格，导致两件素材必须外挂。</p>
+        </div>
+        <div class="ov-card card">
+          <span class="n">03 可传送性</span>
+          <h3>传送锚点与营地要隔开</h3>
+          <p>《夜行铁轨》的锚点判定半径 30 米，营地若压在圈内，读档会落在锚点而非床铺。11 月 5 日修订的 7 个点位里，5 个因此向南挪了 9 至 14 米。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 精选内容推荐 -->
+    <section class="block" id="picks">
+      <div class="sec-head">
+        <h2>精选推荐：本期六个可反复进入的营点</h2>
+        <span class="sub">均含坐标、版本与验证平台</span>
+        <a class="more" href="/#cats">按游戏筛选 →</a>
+      </div>
+      <div class="pick-grid">
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-cave-b2/640/360" width="640" height="360" loading="lazy" alt="霜落谷岩壁下的储藏洞洞口，洞内可见木箱与油灯">
+          <div class="pick-body">
+            <span class="tag g">雾港余烬 1.8.4</span>
+            <h3>霜落谷 B2 储藏洞</h3>
+            <p>坐标 (317, 942)。三面岩壁夹一个北向洞口，退潮后洞底水位不上升，可放 6 个容器箱。Steam 端与主机端洞内光照略有差异，不影响箱体交互。</p>
+            <div class="pick-foot"><span class="meta">11/07 校验</span><span>·</span><span>验证人：北岸灯塔 / Steam</span></div>
+          </div>
+        </article>
+
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-train-shed/640/360" width="640" height="360" loading="lazy" alt="废弃铁轨旁的木制机车棚，棚下停着一节检修车">
+          <div class="pick-body">
+            <span class="tag">夜行铁轨 0.9.2</span>
+            <h3>旧三号隧道机车棚</h3>
+            <p>坐标 (488, 1206)。棚顶完整，雨雪天不扣体温。锚点在东南 42 米，超出 30 米判定圈，读档会落回床铺。棚内可停检修车，带 12 格后备箱。</p>
+            <div class="pick-foot"><span class="meta">11/05 校验</span><span>·</span><span>验证人：铁轨夜班的猫 / PC</span></div>
+          </div>
+        </article>
+
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-shell-camp/640/360" width="640" height="360" loading="lazy" alt="石壳编年中半埋在砂岩里的圆形石屋营地，屋顶有排烟孔">
+          <div class="pick-body">
+            <span class="tag g">石壳编年 2.3.1</span>
+            <h3>砂岩环屋临时营地</h3>
+            <p>坐标 (206, 764)。石屋自带 3 个固定箱位，升级成永久点要在屋内铺 4 块砂岩板，材料在北侧 80 米的采石坑。11 月 3 日实测升级后箱子不再刷新丢失。</p>
+            <div class="pick-foot"><span class="meta">11/03 校验</span><span>·</span><span>验证人：老砚台 / PC</span></div>
+          </div>
+        </article>
+
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-lighthouse-/640/360" width="640" height="360" loading="lazy" alt="海崖边的旧灯塔底层房间，墙上有缆绳和木架">
+          <div class="pick-body">
+            <span class="tag r">雾港余烬 1.8.2</span>
+            <h3>断桅角灯塔底层</h3>
+            <p>坐标 (94, 1031)。1.8.2 版本可用，1.8.4 因潮汐修复被部分淹没，当前只到膝盖，箱体仍可开。适合开荒期短住，不建议长期囤稀有材料。</p>
+            <div class="pick-foot"><span class="meta">10/29 校验</span><span>·</span><span>验证人：退潮再去 / Steam</span></div>
+          </div>
+        </article>
+
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-mine-gate/640/360" width="640" height="360" loading="lazy" alt="山口处的废弃矿洞铁门，门边堆着木料与推车">
+          <div class="pick-body">
+            <span class="tag g">石壳编年 2.3.1</span>
+            <h3>灰脊矿口守棚</h3>
+            <p>坐标 (552, 318)。矿口每 20 分钟刷一次石壳虫，守棚在铁门内侧 6 米，关门即安全。棚内只有 2 个箱位，要扩容需在门外岩台另建堆场。</p>
+            <div class="pick-foot"><span class="meta">11/01 校验</span><span>·</span><span>验证人：灰脊搬运工 / PC</span></div>
+          </div>
+        </article>
+
+        <article class="pick-card card">
+          <img class="thumb" src="https://picsum.photos/seed/basecamp-river-barge/640/360" width="640" height="360" loading="lazy" alt="河湾浅滩上搁浅的货运驳船，船舱门敞开，舱内有睡袋">
+          <div class="pick-body">
+            <span class="tag">夜行铁轨 0.9.2</span>
+            <h3>浅滩搁浅驳船</h3>
+            <p>坐标 (133, 887)。船舱干燥，睡袋可省一次搭棚。水位线随季节涨落，10 月 30 日实测涨到舱门第二阶，入舱要涉水半步。箱位 4 个，均在舱内壁。</p>
+            <div class="pick-foot"><span class="meta">10/30 校验</span><span>·</span><span>验证人：河湾夜宿 / PC</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 最新更新 -->
+    <section class="block" id="updates">
+      <div class="sec-head">
+        <h2>最新更新：近十天的坐标修订记录</h2>
+        <span class="sub">按校验顺序排列</span>
+      </div>
+      <ol class="timeline">
+        <li class="new">
+          <div class="t-title">霜落谷 B2 入口坐标南移 11 格</div>
+          <div class="t-desc">旧坐标 (317, 931) 在 1.8.4 里落进潮汐淹没带，新坐标 (317, 942) 位于岩坎上沿。已同步修正配图说明。</div>
+          <div class="t-meta">11/07 · 雾港余烬 1.8.4</div>
+        </li>
+        <li>
+          <div class="t-title">旧三号隧道机车棚补录锚点距离</div>
+          <div class="t-desc">复核发现锚点实际距离 42 米而非 28 米，原记录有误。修正后该点从“待观察”升为“可长期使用”。</div>
+          <div class="t-meta">11/05 · 夜行铁轨 0.9.2</div>
+        </li>
+        <li>
+          <div class="t-title">砂岩环屋升级验证通过</div>
+          <div class="t-desc">铺满 4 块砂岩板后箱子不再刷新丢失，连续三天各读档一次均正常。材料清单补上所需的 12 份砂砾。</div>
+          <div class="t-meta">11/03 · 石壳编年 2.3.1</div>
+        </li>
+        <li>
+          <div class="t-title">灰脊矿口守棚加入刷新计时</div>
+          <div class="t-desc">石壳虫刷新间隔实测 20 分钟，误差约 ±40 秒。原“约 15 分钟”的说法来自旧版 2.2，已删去。</div>
+          <div class="t-meta">11/01 · 石壳编年 2.3.1</div>
+        </li>
+        <li>
+          <div class="t-title">浅滩驳船水位记录更新</div>
+          <div class="t-desc">10 月 30 日涨水到舱门第二阶，比 9 月高出一阶。舱内箱位不受影响，但入舱需涉水。</div>
+          <div class="t-meta">10/30 · 夜行铁轨 0.9.2</div>
+        </li>
+        <li>
+          <div class="t-title">断桅角灯塔底层标记降级</div>
+          <div class="t-desc">1.8.4 潮汐修复后积水到膝，稀有材料不建议长期堆放。标注为“短住可用”，原“长期囤放”措辞删除。</div>
+          <div class="t-meta">10/29 · 雾港余烬 1.8.4</div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 分类入口 -->
+    <section class="block" id="cats">
+      <div class="sec-head">
+        <h2>分类索引：按用途找入口</h2>
+        <span class="sub">12 个频道</span>
+      </div>
+      <div class="cat-grid">
+        <a class="cat-item" href="/#picks"><b>岩洞储藏点</b><span>洞体稳定、不受潮汐影响的箱位</span></a>
+        <a class="cat-item" href="/#picks"><b>隧道机车棚</b><span>带顶棚、可停检修车的据点</span></a>
+        <a class="cat-item" href="/#picks"><b>石屋临时营地</b><span>可升级为永久点的既有建筑</span></a>
+        <a class="cat-item" href="/#guide"><b>传送锚点避让</b><span>30 米判定圈外的选址方法</span></a>
+        <a class="cat-item" href="/#picks"><b>海边灯塔底层</b><span>潮汐区内的短期落脚处</span></a>
+        <a class="cat-item" href="/#updates"><b>版本改动对照</b><span>1.8.2 与 1.8.4 的入口差异</span></a>
+        <a class="cat-item" href="/#guide"><b>容器箱容量表</b><span>单箱格数与任务物品占位</span></a>
+        <a class="cat-item" href="/#deep"><b>坐标校验记录</b><span>发现日期、平台、验证人</span></a>
+        <a class="cat-item" href="/#guide"><b>地形刷新规避</b><span>矿口、河滩、潮线三类环境</span></a>
+        <a class="cat-item" href="/#faq"><b>读档落点问题</b><span>床铺与锚点冲突的排查</span></a>
+        <a class="cat-item" href="/#faq"><b>跨端兼容</b><span>Steam 与主机端差异条目</span></a>
+        <a class="cat-item" href="/#recs"><b>矿口守棚</b><span>刷怪区旁的封闭式据点</span></a>
+      </div>
+    </section>
+
+    <!-- 深度解析 -->
+    <section class="block" id="deep">
+      <div class="sec-head">
+        <h2>深度解析：临时点升级永久点，三次失败换来的判断</h2>
+        <span class="sub">唯一主体阅读区</span>
+      </div>
+      <div class="article-box card">
+        <p class="art-lead">“临时营地能升级成永久点”这句话在《石壳编年》2.3.1 的补丁说明里只有一行，没有写条件。10 月 30 日到 11 月 3 日之间，我们按四种材料组合各试了一次，两次丢箱，一次降级，一次成功。可复现的部分写在下面，方便你反驳。</p>
+
+        <h3>判断一：砂岩板数量不是关键，屋内是否封闭才是</h3>
+        <p>10 月 30 日，砂岩环屋 (206, 764) 第一次尝试：铺 4 块砂岩板，留北侧门口不封，摆 3 个箱。次日读档，箱体回到 1 个，另外两个消失，屋内存档标记仍是“临时”。11 月 1 日补 2 块板把门口封死，只留一扇可开关的木门，同样 3 个箱，11 月 3 日、4 日各读档一次，箱体全在，标记变成“永久”。</p>
+        <div class="judge-box">
+          <span class="lbl">可核对结构</span>
+          <b>变量</b>：屋面开口 / <b>对照</b>：开口 vs 封闭 / <b>观测</b>：开口时箱体从 3 降到 1，封闭后稳定 3 / <b>结论边界</b>：仅适用于砂岩环屋这一建筑类型，矿口守棚未见同样现象。
+        </div>
+
+        <h3>判断二：任务物品占位会让“48 格”变成 47 格</h3>
+        <p>B2 储藏洞的六箱布局，按箱子标称 8 格计算是 48 格。2.3.1 版本里主线物品“碎壳钥匙”不占玩家背包，而是固定占一个箱内格，且占用后那格的剩余空间不可用。11 月 2 日实测：6 箱共塞进 47 件素材后提示“容器已满”，第 48 件无法放入。</p>
+        <table class="compare-table">
+          <caption style="text-align:left;font-size:13px;color:#4a5754;padding-bottom:6px">六箱容量实测对照（《石壳编年》2.3.1，11/02）</caption>
+          <thead>
+            <tr><th>箱体编号</th><th>标称格数</th><th>实际可用</th><th>占位说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>A1–A3</td><td class="code">8 × 3</td><td class="code">23</td><td>碎壳钥匙占 A2 一格</td></tr>
+            <tr><td>B1–B3</td><td class="code">8 × 3</td><td class="code">24</td><td>无占位</td></tr>
+            <tr><td>合计</td><td class="code">48</td><td class="code">47</td><td>第 48 件被拒绝</td></tr>
+          </tbody>
+        </table>
+
+        <h3>判断三：锚点 30 米判定圈，量直线不量路径</h3>
+        <p>11 月 4 日，旧三号隧道机车棚第一次记录写“锚点 28 米”，后来改口 42 米。原因是最初用绕轨道路径估算，而游戏判定用的是两点直线距离。用地形测绘插件的标尺量棚门到锚点石，直线 42.3 米，绕行轨道要 61 米。锚点判定只认直线，所以 42 米已足够安全；把它挪到 28 米反而会压进圈内。</p>
+        <div class="judge-box">
+          <span class="lbl">规则前后变化</span>
+          <b>0.9.1</b>：锚点判定半径 20 米，棚门到锚点 28 米通过。<b>0.9.2</b>：半径扩到 30 米，同一点位若按路径距离 61 米仍进不了圈，但按直线 42.3 米勉强在外。0.9.2 更新日志未提这条修改，是从读档落点异常反推出来的。
+        </div>
+
+        <h3>争议区：断桅角灯塔底层算不算永久点</h3>
+        <p>Steam 社区 10 月 29 日的帖子里，用户“退潮再去”称灯塔底层 1.8.4 仍可长期存放。我们的记录是积水到膝、箱体可开但地形刷新后西侧墙面有 1 格位移，箱子被挤到墙外一次。转述和事实分开列：</p>
+        <ul>
+          <li>事实：1.8.4 潮汐修复后该层持续积水，深度在 0.4 至 0.6 米之间波动（11 月 1 日、6 日两次实测）。</li>
+          <li>转述：社区帖子称“箱子没丢过”，未说明是否跨版本读档。</li>
+          <li>推测：短期存放 3 至 5 天风险较低，超过一周遇到地形刷新的概率上升。</li>
+          <li>回应：11 月 7 日在条目里标注为“短住可用”，未删去，保留供自行判断。</li>
+        </ul>
+        <p>可被反驳的点在于样本量：灯塔底层只观察到 1 次墙体位移，单次事件不足以证明系统性丢失。如果 11 月 10 日前再复现一次，会把它从“待观察”下调。</p>
+      </div>
+    </section>
+
+    <!-- 体验指南 -->
+    <section class="block" id="guide">
+      <div class="sec-head">
+        <h2>体验指南：三步确认一个点能不能长期用</h2>
+        <span class="sub">不用第三方工具</span>
+      </div>
+      <ol class="steps">
+        <li>
+          <b>先放两件低价值材料，睡一觉再读档</b>
+          <p>沙丁鱼干、碎石这类丢了不心疼的东西即可。读档后看箱内数量与位置是否一致，尤其是箱子是否被挤到墙外。10 月 30 日那次丢箱，问题就出在这一步被跳过。</p>
+        </li>
+        <li>
+          <b>量棚门到锚点的直线距离，不量走法</b>
+          <p>打开地形测绘插件，从床铺中心点到锚点石中心点拉一条线。小于 30 米就往外挪。绕行距离只影响你走路，不影响读档落点判定。</p>
+        </li>
+        <li>
+          <b>过一场雨或一次退潮，再看洞口</b>
+          <p>《雾港余烬》在退潮后 6 至 9 分钟内完成地形刷新，站在洞外看水位线最直观。若水位没过箱底，这个点在 1.8.4 里不能算永久。</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 对照面板 -->
+    <section class="block" id="compare">
+      <div class="sec-head">
+        <h2>两类落脚点对照：洞穴型与建筑型</h2>
+        <span class="sub">同版本内的差异</span>
+      </div>
+      <div class="panel-grid">
+        <div class="panel p1">
+          <div class="ph">洞穴型 · 以 B2 储藏洞为例</div>
+          <div class="pb">
+            <p><strong>优势</strong>：容量大，6 箱共 47 格可用；不受降雪影响，洞内温度恒定；地形刷新只作用于洞口岩坎。</p>
+            <p><strong>限制</strong>：洞口方向固定，北向洞在退潮后水位最低；洞内无法放置床铺以外的大型家具；光照在主机端偏暗。</p>
+            <p><strong>适合</strong>：素材囤积、跨版本长期存放、多人共享仓库。</p>
+          </div>
+        </div>
+        <div class="panel p2">
+          <div class="ph">建筑型 · 以机车棚为例</div>
+          <div class="pb">
+            <p><strong>优势</strong>：自带顶棚和墙，箱体不受风吹减耐久；可停检修车，带 12 格后备箱；离锚点 42 米，读档落床铺。</p>
+            <p><strong>限制</strong>：建筑本体不可改造，扩容只能靠外置木箱；屋顶在暴风天有 2 处漏点，需补板；箱位只有 5 格。</p>
+            <p><strong>适合</strong>：日常往返、短途探索补给、带车转移物资。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="block" id="faq">
+      <div class="sec-head">
+        <h2>常见问题</h2>
+        <span class="sub">来自校验记录中的高频疑问</span>
+      </div>
+      <div class="faq-list">
+        <details class="faq">
+          <summary>霜落谷 B2 储藏洞为什么有两个坐标流传？</summary>
+          <div class="ans">旧坐标 (317, 931) 属于 1.8.2 时期，1.8.4 潮汐修复后该位置落进淹没带。11 月 7 日校验确认新的可进入点是 (317, 942)，南移 11 格。两处相距不远，走过去约 40 秒，但只有新坐标的洞口保持干燥。</div>
+        </details>
+        <details class="faq">
+          <summary>临时营地升级成永久点，需要准备多少砂岩板？</summary>
+          <div class="ans">砂岩环屋的实测用量是 4 块铺底加 2 块封门，共 6 块；材料来自北侧 80 米采石坑，12 份砂砾合成 3 块，所以总共要跑两趟。数量本身不是判定条件，封住屋面开口才是。</div>
+        </details>
+        <details class="faq">
+          <summary>读档后角色落在锚点而不是床铺，是什么原因？</summary>
+          <div class="ans">锚点判定半径在 0.9.2 扩到 30 米，且只算直线距离。营地若压进圈内，系统优先落锚点。把营地往外挪到直线 35 米以上，或者干脆把锚点移到另一条轨道旁，都能解决。</div>
+        </details>
+        <details class="faq">
+          <summary>灰脊矿口守棚适合长期囤材料吗？</summary>
+          <div class="ans">守棚只有 2 个箱位，合计 16 格，且矿口每 20 分钟刷一次石壳虫，误差约 ±40 秒。短期周转可以，囤稀有材料会很快顶格。要扩容只能在门外岩台另建堆场，那里没有顶棚。</div>
+        </details>
+        <details class="faq">
+          <summary>浅滩搁浅驳船的箱体会不会随水位上涨丢失？</summary>
+          <div class="ans">10 月 30 日涨水到舱门第二阶，箱体仍在舱内壁原位，没有位移。目前记录里唯一一次箱体被挤出去的是断桅角灯塔底层，发生在 1.8.4 地形刷新时，与驳船不是同一种结构。</div>
+        </details>
+        <details class="faq">
+          <summary>Steam 端能看到主机端的营地坐标吗？</summary>
+          <div class="ans">坐标数值通用，但洞内光照与箱体交互距离有差异。B2 储藏洞在主机端偏暗，开箱提示距离比 Steam 端短约 0.3 米。跨端共享存档时以数值坐标为准，不要依赖截图里的相对位置。</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 用户评论 -->
+    <section class="block" id="comments">
+      <div class="sec-head">
+        <h2>用户评论</h2>
+        <span class="sub">含中性评价与不同意见</span>
+      </div>
+      <div class="cmt-list">
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">北</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>北岸灯塔</b><span>Steam · 11/07</span><span class="tag g">B2 储藏洞</span></div>
+            <p>新坐标 (317, 942) 实测可用，退潮后洞底完全干。之前按旧坐标跑了三趟都白跑，建议首页公告那条 <em>南推 11 格</em> 写得更醒目些。</p>
+          </div>
+        </div>
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">铁</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>铁轨夜班的猫</b><span>PC · 11/05</span><span class="tag">旧三号隧道机车棚</span></div>
+            <p>28 米改 42 米那条修正挺关键。我按旧数据把床挪到棚外，结果读档还是落锚点，绕了一大圈才明白是量了路径距离。</p>
+          </div>
+        </div>
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">砚</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>老砚台</b><span>PC · 11/03</span><span class="tag g">砂岩环屋</span></div>
+            <p>砂岩板那 6 块我用了 7 块，因为屋面中间还有个小缝没封住，第一晚箱子少了一个。补上之后稳定，但材料比记录多了 1 块，可能和建筑朝向有关。</p>
+          </div>
+        </div>
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">退</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>退潮再去</b><span>Steam · 10/29</span><span class="tag r">断桅角灯塔</span></div>
+            <p>灯塔底层我放了快两周东西没丢，积水是有点，但箱子能开啊。说“不建议长期囤”我觉得偏保守，至少西侧两个箱位一直很稳。</p>
+          </div>
+        </div>
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">河</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>河湾夜宿</b><span>PC · 10/30</span><span class="tag">浅滩驳船</span></div>
+            <p>涉水半步是真的，但那条驳船的船舱比想象中干，睡袋一铺就能过夜。箱位只有 4 个，搬大件材料不太够用。</p>
+          </div>
+        </div>
+        <div class="cmt">
+          <div class="avatar" aria-hidden="true">灰</div>
+          <div class="cmt-body">
+            <div class="cmt-head"><b>灰脊搬运工</b><span>PC · 11/01</span><span class="tag g">灰脊矿口守棚</span></div>
+            <p>20 分钟刷石壳虫这个数我蹲了三轮，基本准。就是守棚里只有两格箱，我第三箱放门外当晚被怪摸掉了，别在门外放东西。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 相关资讯 -->
+    <section class="block" id="news">
+      <div class="sec-head">
+        <h2>相关资讯</h2>
+        <span class="sub">版本、补丁与社区讨论</span>
+      </div>
+      <ul class="news-list">
+        <li>
+          <span class="nd">11/06</span>
+          <div>
+            <div class="nt">《雾港余烬》1.8.4 热修说明：潮汐线判定改为按岩坎高度</div>
+            <div class="nx">补丁日志只写了“修复部分洞穴在退潮后仍被封堵的问题”，没有列出受影响坐标。11 月 7 日的校验显示，高于海拔 12 米的岩坎点位保留，其余重新封堵。</div>
+          </div>
+        </li>
+        <li>
+          <span class="nd">11/04</span>
+          <div>
+            <div class="nt">《夜行铁轨》0.9.2 锚点判定半径从 20 米扩至 30 米</div>
+            <div class="nx">更新日志未提这条，是从读档落点异常反推的。受影响的是 7 个已记录点位，其中 5 个在 11 月 5 日向南挪了 9 至 14 米。</div>
+          </div>
+        </li>
+        <li>
+          <span class="nd">11/02</span>
+          <div>
+            <div class="nt">《石壳编年》2.3.1 主线钥匙占用容器格，六箱布局实际只剩 47 格</div>
+            <div class="nx">碎壳钥匙不占背包、固定占箱内一格，且该格剩余空间不可用。多人共享仓库时要预留这一格，否则第 48 件素材放不进去。</div>
+          </div>
+        </li>
+        <li>
+          <span class="nd">10/31</span>
+          <div>
+            <div class="nt">社区讨论：建筑型营地是否比洞穴更适合长期存放</div>
+            <div class="nx">反方观点集中在箱位数量，洞穴 6 箱对建筑 5 箱；正方强调建筑有顶棚、箱体不吃风化。两边都没给跨版本数据，参考价值有限。</div>
+          </div>
+        </li>
+        <li>
+          <span class="nd">10/28</span>
+          <div>
+            <div class="nt">地形测绘插件 v3.2 支持直线距离标注</div>
+            <div class="nx">此前只显示路径距离，是 28 米与 42 米弄混的直接原因。更新后可在两点间拉直线并显示数值，误差在 0.1 米内。</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 相关推荐 -->
+    <section class="block" id="recs">
+      <div class="sec-head">
+        <h2>相关推荐</h2>
+        <span class="sub">按用途串起来的入口</span>
+      </div>
+      <div class="rec-grid">
+        <a class="rec" href="/#picks"><b>岩洞储藏点清单</b><span>六箱以上容量的洞体，含潮汐线标注</span></a>
+        <a class="rec" href="/#guide"><b>传送锚点避让方法</b><span>直线距离与路径距离的差别</span></a>
+        <a class="rec" href="/#deep"><b>临时营地升级条件</b><span>封闭屋面与砂岩板用量实测</span></a>
+        <a class="rec" href="/#updates"><b>1.8.2 与 1.8.4 入口差异</b><span>受影响坐标逐条对照</span></a>
+        <a class="rec" href="/#faq"><b>读档落点异常排查</b><span>床铺与锚点冲突的三个原因</span></a>
+        <a class="rec" href="/#comments"><b>守棚与驳船使用反馈</b><span>箱位数量、涉水深度、刷怪计时</span></a>
+        <a class="rec" href="/#cats"><b>隧道机车棚索引</b><span>带顶棚、可停车的据点汇总</span></a>
+        <a class="rec" href="/#deep"><b>容器格数实测表</b><span>标称格数与实际可用格数</span></a>
+        <a class="rec" href="/#guide"><b>退潮后洞口观察法</b><span>6 至 9 分钟的刷新窗口</span></a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 侧栏 -->
+  <aside class="side-col">
+    <div class="side-card card side-nav" id="sideNav" aria-label="栏目导航">
+      <h2>栏目导航</h2>
+      <ul>
+        <li><a href="/#overview">领域概览</a></li>
+        <li><a href="/#picks">精选营点</a></li>
+        <li><a href="/#updates">地图更新</a></li>
+        <li><a href="/#cats">分类索引</a></li>
+        <li><a href="/#deep">深度解析</a></li>
+        <li><a href="/#guide">体验指南</a></li>
+        <li><a href="/#compare">两类对照</a></li>
+        <li><a href="/#faq">常见问题</a></li>
+        <li><a href="/#comments">用户评论</a></li>
+        <li><a href="/#news">相关资讯</a></li>
+        <li><a href="/#recs">相关推荐</a></li>
+      </ul>
+    </div>
+
+    <div class="side-card card">
+      <h3>本周坐标热度</h3>
+      <ol class="rank-list">
+        <li><a href="/#picks">霜落谷 B2 储藏洞</a><span>· (317, 942) · 1.8.4</span></li>
+        <li><a href="/#picks">旧三号隧道机车棚</a><span>· (488, 1206) · 0.9.2</span></li>
+        <li><a href="/#picks">砂岩环屋</a><span>· (206, 764) · 2.3.1</span></li>
+        <li><a href="/#picks">灰脊矿口守棚</a><span>· (552, 318) · 2.3.1</span></li>
+        <li><a href="/#picks">浅滩搁浅驳船</a><span>· (133, 887) · 0.9.2</span></li>
+      </ol>
+    </div>
+
+    <div class="side-card card">
+      <h3>可信度分层</h3>
+      <div class="trust-tier">
+        <div class="tier t-a"><b>A 级 · 双端复现</b>两平台各读档一次以上，坐标与箱体一致。B2 储藏洞、机车棚属此层。</div>
+        <div class="tier t-b"><b>B 级 · 单端实测</b>仅一个平台验证，或样本少于两次。砂岩环屋、灰脊矿口守棚在此层。</div>
+        <div class="tier t-c"><b>C 级 · 待复现</b>有 1 次异常记录，未排除偶然。断桅角灯塔底层的墙体位移属于此类。</div>
+      </div>
+    </div>
+
+    <div class="side-card card">
+      <h3>创作者证言</h3>
+      <p style="font-size:13.3px;line-height:1.8;color:var(--ink-soft)">“我把每次丢箱都记在一张纸上，日期、箱号、丢了什么。写满 14 行之后才看出规律：都是屋面没封死的那些。数据不多，但比我凭感觉挪点靠谱。”<br><span class="meta" style="display:block;margin-top:6px">—— 老砚台，砂岩环屋升级记录，11/03</span></p>
+    </div>
+
+    <div class="side-card card">
+      <h3>站点提示</h3>
+      <p style="font-size:13px;line-height:1.8;color:var(--ink-soft)">坐标均由玩家在对应版本内实测记录，版本更新后可能失效。条目保留发现日期与验证平台，便于按时间核对。</p>
+    </div>
+  </aside>
+</div>
+
+<!-- 页尾 -->
+<footer class="site-foot">
+  <div class="foot-wrap">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand">
+          <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#2a4a40"/>
+            <path d="M13 45 L32 17 L51 45 Z" fill="none" stroke="#e8b44a" stroke-width="3.6" stroke-linejoin="round"/>
+            <circle cx="32" cy="38" r="5.4" fill="#e8b44a"/>
+          </svg>
+          <b>秘密基地永久入口</b>
+        </div>
+        <p class="foot-desc">记录开放世界游戏里能反复回去的落脚处，附带坐标、版本号与验证平台。</p>
+      </div>
+      <div class="foot-col">
+        <h3>营点索引</h3>
+        <ul>
+          <li><a href="/#picks">岩洞储藏点</a></li>
+          <li><a href="/#picks">隧道机车棚</a></li>
+          <li><a href="/#picks">石屋临时营地</a></li>
+          <li><a href="/#cats">分类索引</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h3>判断方法</h3>
+        <ul>
+          <li><a href="/#guide">三步验证永久点</a></li>
+          <li><a href="/#deep">临时点升级条件</a></li>
+          <li><a href="/#compare">洞穴与建筑对照</a></li>
+          <li><a href="/#faq">读档落点排查</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h3>更新与讨论</h3>
+        <ul>
+          <li><a href="/#updates">坐标修订记录</a></li>
+          <li><a href="/#news">版本与补丁</a></li>
+          <li><a href="/#comments">用户评论</a></li>
+          <li><a href="/#recs">相关推荐</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-meta">
+      <span>示例数据说明：本页坐标、版本号、验证人名称均为演示用示例条目，与真实游戏账号无关。</span>
+      <span class="upd">正文可核对更新时间：<b>2026-11-07</b>（对应“霜落谷 B2 入口坐标南移 11 格”） · © 2026 秘密基地永久入口</span>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" type="button" id="toTop" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 19V6"/><path d="M6 12l6-6 6 6"/></svg>
+</button>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "秘密基地永久入口",
+  "description": "独立游戏存档点、自建营地坐标与地图资源索引，含版本差异与校验记录。",
+  "inLanguage": "zh-CN"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "霜落谷 B2 储藏洞为什么有两个坐标流传？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "旧坐标 (317, 931) 属于 1.8.2 时期，1.8.4 潮汐修复后该位置落进淹没带，11 月 7 日校验确认新的可进入点是 (317, 942)，南移 11 格。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "临时营地升级成永久点，需要准备多少砂岩板？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "砂岩环屋的实测用量是 4 块铺底加 2 块封门，共 6 块；材料来自北侧 80 米采石坑，12 份砂砾合成 3 块。封住屋面开口才是判定条件。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "读档后角色落在锚点而不是床铺，是什么原因？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "锚点判定半径在 0.9.2 扩到 30 米且只算直线距离。营地若压进圈内，系统优先落锚点，把营地挪到直线 35 米以上即可。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "灰脊矿口守棚适合长期囤材料吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "守棚只有 2 个箱位合计 16 格，矿口每 20 分钟刷一次石壳虫，误差约 ±40 秒。短期周转可以，囤稀有材料会很快顶格。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "浅滩搁浅驳船的箱体会不会随水位上涨丢失？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "10 月 30 日涨水到舱门第二阶，箱体仍在舱内壁原位，没有位移。目前记录里唯一一次箱体被挤出去的是断桅角灯塔底层。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Steam 端能看到主机端的营地坐标吗？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "坐标数值通用，但洞内光照与箱体交互距离有差异。B2 储藏洞在主机端偏暗，开箱提示距离比 Steam 端短约 0.3 米。"
+      }
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  var menuBtn = document.getElementById('menuBtn');
+  var mainNav = document.getElementById('mainNav');
+  var toTop = document.getElementById('toTop');
+  var sideLinks = document.querySelectorAll('#sideNav a');
+  var sections = [];
+  sideLinks.forEach(function(a){
+    var id = a.getAttribute('href').replace('/#','');
+    var el = document.getElementById(id);
+    if(el) sections.push({el:el, link:a});
+  });
+
+  /* 菜单 */
+  function closeMenu(){
+    mainNav.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded','false');
+    menuBtn.setAttribute('aria-label','展开导航菜单');
+  }
+  menuBtn.addEventListener('click', function(){
+    var open = mainNav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menuBtn.setAttribute('aria-label', open ? '收起导航菜单' : '展开导航菜单');
+  });
+  mainNav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      if(window.innerWidth <= 980) closeMenu();
+    });
+  });
+  document.addEventListener('click', function(e){
+    if(window.innerWidth <= 980 && mainNav.classList.contains('open')){
+      if(!mainNav.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeMenu();
+  });
+  window.addEventListener('resize', function(){
+    if(window.innerWidth > 980) closeMenu();
+  });
+
+  /* 回到顶部 */
+  var ticking = false;
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function(){
+      if(window.scrollY > 420){
+        toTop.classList.add('show');
+      } else {
+        toTop.classList.remove('show');
+      }
+      /* 侧栏高亮 */
+      var pos = window.scrollY + 140;
+      var current = null;
+      sections.forEach(function(s){
+        if(s.el.offsetTop <= pos) current = s;
+      });
+      sideLinks.forEach(function(a){ a.classList.remove('active'); });
+      if(current) current.link.classList.add('active');
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  toTop.addEventListener('click', function(){
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  /* 本地搜索 */
+  var input = document.getElementById('siteSearch');
+  var btn = document.getElementById('searchBtn');
+  var fb = document.getElementById('searchFeedback');
+  var items = [];
+  document.querySelectorAll('.pick-card, .timeline li, .cat-item, .rec, .news-list li, .side-list li, details.faq, .cmt').forEach(function(node){
+    var text = node.innerText || node.textContent || '';
+    items.push({node:node, text:text.replace(/\s+/g,''), raw:text});
+  });
+
+  function doSearch(){
+    var q = input.value.trim();
+    if(!q){
+      fb.className = 'search-feedback show';
+      fb.textContent = '请输入营点名称、坐标或游戏名，例如“B2”或“942”。';
+      return;
+    }
+    var ql = q.toLowerCase();
+    var hit = null;
+    for(var i=0;i<items.length;i++){
+      if(items[i].text.toLowerCase().indexOf(ql) !== -1){
+        hit = items[i];
+        break;
+      }
+    }
+    if(hit){
+      fb.className = 'search-feedback show';
+      fb.innerHTML = '已定位到含「' + q.replace(/</g,'&lt;') + '」的条目，正在跳转。';
+      var target = hit.node.closest('.pick-card') || hit.node.closest('li') || hit.node.closest('section') || hit.node;
+      var anchor = hit.node.closest('section');
+      if(anchor && anchor.id){
+        window.location.hash = '';
+        var top = anchor.getBoundingClientRect().top + window.scrollY - 110;
+        window.scrollTo({top:top, behavior:'smooth'});
+      }
+      setTimeout(function(){ fb.classList.remove('show'); }, 3200);
+    } else {
+      fb.className = 'search-feedback show';
+      fb.innerHTML = '<strong>没有匹配结果。</strong>试试游戏名（雾港余烬 / 石壳编年 / 夜行铁轨）、坐标数字或“储藏洞”这类用途词。';
+    }
+  }
+  btn.addEventListener('click', doSearch);
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); doSearch(); }
+  });
+  document.addEventListener('click', function(e){
+    if(!document.querySelector('.search-box').contains(e.target)){
+      fb.classList.remove('show');
+    }
+  });
+})();
+</script>
+</body>
+            </html>
