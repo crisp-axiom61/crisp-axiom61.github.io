@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7086失效地址回家指南-旧入口打不开的排查手册</title>
+<meta name="description" content="7086失效地址回家指南：整理旧域名打不开、跳转异常、镜像入口停更时的判断顺序，含DNS与证书自查表、镜像站点可信度分层、读者实测记录和常见问答，附发布时间与可核对更新项。">
+<meta name="keywords" content="7086失效地址回家指南">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f2e2b'/%3E%3Cpath d='M14 44V22l10 12 8-14 8 14 10-12v22' fill='none' stroke='%23f2b950' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"7086失效地址回家指南","inLanguage":"zh-CN","description":"旧入口失效后的自查顺序、镜像可信度分层与读者实测记录。","dateModified":"2026-11-08"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"7086旧地址打不开先查什么？","acceptedAnswer":{"@type":"Answer","text":"先分清是解析失败还是连接超时：命令行执行nslookup看有无A记录，有记录再ping网关。域名黑名单与DNS污染表现不同，前者多为跳转到无关页面，后者常是请求一直挂起。"}},
+{"@type":"Question","name":"镜像站怎么判断能不能用？","acceptedAnswer":{"@type":"Answer","text":"看三件事：证书颁发时间是否晚于主站停更、页面快照日期是否连续、登录后账号数据是否与主站一致。三项都过再考虑收藏。"}},
+{"@type":"Question","name":"收藏夹里的老链接还有救吗？","acceptedAnswer":{"@type":"Answer","text":"看301跳转链。用curl -I 跟随跳转，若终点落在新域名则直接更新书签；若落在广告联盟域名，说明该入口已被第三方接管。"}}
+]}
+</script>
+<style>
+:root{
+  --bg:#f6f4ee;
+  --paper:#fffdf8;
+  --ink:#20261f;
+  --ink-2:#4a5548;
+  --ink-3:#75806f;
+  --line:#dcd6c6;
+  --line-soft:#eae5d8;
+  --main:#0f2e2b;
+  --main-2:#1c4a43;
+  --accent:#b4552a;
+  --accent-2:#f2b950;
+  --ok:#2f6b45;
+  --warn:#a8621b;
+  --bad:#9c3535;
+  --r:10px;
+  --r-sm:6px;
+  --sh:0 1px 2px rgba(32,38,31,.06),0 6px 18px rgba(32,38,31,.05);
+  --sh-h:0 2px 4px rgba(32,38,31,.08),0 10px 24px rgba(32,38,31,.09);
+  --sp:clamp(16px,3vw,28px);
+  --fs:16px;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:var(--fs)/1.75 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--main-2);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{margin:0;line-height:1.35;font-weight:700;letter-spacing:.01em}
+p{margin:0 0 .85em}
+p:last-child{margin-bottom:0}
+ul,ol{margin:0 0 .85em;padding-left:1.25em}
+li{margin:0 0 .35em}
+.wrap{width:min(1180px,100% - 32px);margin-inline:auto}
+.scroll-anchor{scroll-margin-top:112px}
+
+/* sticky top */
+.sticky-top{position:sticky;top:0;z-index:60}
+.notice{
+  background:var(--main);color:#e9e4d5;font-size:13.5px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.notice .wrap{
+  display:flex;gap:12px;align-items:center;padding:7px 0;flex-wrap:wrap;
+}
+.notice b{color:var(--accent-2);font-weight:700;letter-spacing:.02em}
+.notice .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);flex:0 0 auto}
+.notice time{color:#c9c3b0;font-family:var(--mono);font-size:12.5px}
+.notice a{color:#fff;border-bottom:1px dotted rgba(255,255,255,.5)}
+header.site{
+  background:rgba(255,253,248,.94);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(32,38,31,.03);
+}
+.head-in{display:flex;align-items:center;gap:18px;padding:10px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.brand svg{width:38px;height:38px;flex:0 0 auto}
+.brand .bt{display:flex;flex-direction:column;line-height:1.2}
+.brand .bt strong{font-size:15.5px;letter-spacing:.02em;color:var(--main)}
+.brand .bt span{font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+nav.top{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav.top a{
+  font-size:14px;padding:6px 10px;border-radius:var(--r-sm);color:var(--ink-2);
+  border:1px solid transparent;
+}
+nav.top a:hover{background:#efeadd;color:var(--main);text-decoration:none}
+.head-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.search{position:relative;display:flex;align-items:center}
+.search input{
+  font:inherit;font-size:13.5px;padding:7px 34px 7px 12px;width:190px;
+  border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);
+}
+.search input:focus{border-color:var(--main-2);outline:none;box-shadow:0 0 0 3px rgba(28,74,67,.12)}
+.search button{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border:0;border-radius:50%;background:var(--main);color:#fff;
+  cursor:pointer;display:grid;place-items:center;padding:0;
+}
+.search button svg{width:13px;height:13px}
+.search-out{
+  font-size:12.5px;color:var(--accent);position:absolute;top:calc(100% + 6px);right:0;
+  background:var(--paper);border:1px solid var(--line);padding:6px 10px;border-radius:var(--r-sm);
+  box-shadow:var(--sh);white-space:nowrap;display:none;
+}
+.search-out.on{display:block}
+.menu-btn{
+  display:none;font:inherit;font-size:13.5px;padding:7px 12px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:#fff;color:var(--main);cursor:pointer;
+}
+
+/* hero */
+.hero{
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(900px 400px at 88% -10%,rgba(242,185,80,.34),transparent 62%),
+    linear-gradient(168deg,#0f2e2b 0%,#133a34 58%,#1b4c43 100%);
+  color:#f0ecdf;
+  border-bottom:1px solid rgba(0,0,0,.15);
+}
+.hero .wrap{position:relative;padding:clamp(28px,5vw,54px) 0 clamp(26px,4vw,44px);z-index:2}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(20px,4vw,44px);align-items:center}
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;font-size:12.5px;letter-spacing:.16em;
+  color:var(--accent-2);border:1px solid rgba(242,185,80,.45);
+  padding:4px 10px;border-radius:999px;margin-bottom:16px;text-transform:uppercase;
+}
+.hero h1{
+  font-size:clamp(26px,3.6vw,40px);letter-spacing:.01em;color:#fff;
+  margin-bottom:14px;
+}
+.hero .lead{font-size:clamp(14.5px,1.5vw,16.5px);color:#d6d2c1;max-width:44em;margin-bottom:20px}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.btn{
+  display:inline-block;font-size:14px;padding:10px 18px;border-radius:999px;
+  border:1px solid transparent;cursor:pointer;font-weight:600;transition:transform .15s ease,box-shadow .15s ease;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sh-h);text-decoration:none}
+.btn.a{background:var(--accent-2);color:#2a1c05}
+.btn.b{background:transparent;color:#f0ecdf;border-color:rgba(240,236,223,.4)}
+.hero-stats{display:flex;gap:clamp(14px,3vw,34px);flex-wrap:wrap;padding-top:16px;border-top:1px solid rgba(240,236,223,.16)}
+.hero-stats div{line-height:1.3}
+.hero-stats b{display:block;font-size:20px;font-family:var(--mono);color:var(--accent-2);letter-spacing:0}
+.hero-stats span{font-size:12.5px;color:#b9b5a4;letter-spacing:.04em}
+/* hero visual: map to home */
+.hero-art{position:relative;aspect-ratio:1/.92;min-height:230px}
+.hero-art svg{width:100%;height:100%;display:block}
+.art-cap{
+  position:absolute;right:6px;bottom:2px;font-size:11px;letter-spacing:.1em;
+  color:#a9b8ad;font-family:var(--mono);
+}
+/* channel bar */
+.channels{border-bottom:1px solid var(--line);background:var(--paper)}
+.channels .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:thin}
+.channels a{
+  flex:0 0 auto;font-size:13.5px;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--line-soft);color:var(--ink-2);background:#fff;white-space:nowrap;
+}
+.channels a:hover{border-color:var(--main-2);color:var(--main);text-decoration:none}
+.channels a.hot{border-color:rgba(180,85,42,.45);color:var(--accent);background:#fdf3ea}
+
+/* layout */
+.layout{
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;
+  gap:clamp(18px,3vw,36px);align-items:start;
+  padding:clamp(22px,4vw,44px) 0 40px;
+}
+main{min-width:0}
+aside{min-width:0;display:flex;flex-direction:column;gap:18px}
+@media (max-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  aside{order:2}
+  main{order:1}
+}
+
+/* section system */
+section{margin-bottom:clamp(22px,3.5vw,38px)}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+.sec-head h2{font-size:clamp(19px,2.2vw,23px);color:var(--main);letter-spacing:.01em}
+.sec-head .sub{font-size:12.5px;color:var(--ink-3);margin-left:auto;letter-spacing:.04em}
+.sec-head .tag{font-size:11.5px;color:var(--accent);border:1px solid rgba(180,85,42,.3);padding:1px 8px;border-radius:999px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.pad{padding:clamp(14px,2.2vw,22px)}
+.muted{color:var(--ink-3)}
+.small{font-size:13px}
+.mono{font-family:var(--mono);font-size:12.5px}
+
+/* overview */
+.ov-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.ov-grid{grid-template-columns:1fr}}
+.ov{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;border-top:3px solid var(--main-2)}
+.ov h3{font-size:15px;margin-bottom:6px;color:var(--main)}
+.ov p{font-size:13.5px;color:var(--ink-2);margin:0}
+.ov .n{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.1em;display:block;margin-bottom:4px}
+
+/* featured */
+.feat{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:14px}
+@media (max-width:720px){.feat{grid-template-columns:1fr}}
+.feat-main{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--paper);min-height:250px}
+.feat-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}
+.feat-main .veil{position:absolute;inset:auto 0 0 0;padding:16px;background:linear-gradient(180deg,transparent,rgba(15,46,43,.94) 62%);color:#fff}
+.feat-main h3{font-size:17px;margin:0 0 4px;color:#fff}
+.feat-main p{font-size:13px;color:#ddd8c8;margin:0}
+.feat-main .meta{font-size:11.5px;color:var(--accent-2);font-family:var(--mono);margin-bottom:5px;display:block}
+.feat-list{display:flex;flex-direction:column;gap:10px}
+.fl{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 13px;display:flex;gap:11px;align-items:flex-start}
+.fl .pill{flex:0 0 auto;font-family:var(--mono);font-size:11px;color:var(--main);background:#e7eee9;border-radius:4px;padding:2px 6px;margin-top:2px}
+.fl h3{font-size:14.5px;margin:0 0 2px}
+.fl p{font-size:12.5px;color:var(--ink-3);margin:0}
+
+/* compact list */
+.clist{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.clist .row{display:flex;gap:12px;align-items:baseline;padding:11px 15px;border-top:1px solid var(--line-soft)}
+.clist .row:first-child{border-top:0}
+.clist .row time{flex:0 0 78px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.clist .row .t{font-size:14px;min-width:0}
+.clist .row .t b{color:var(--main);font-weight:600}
+.clist .row .badge{flex:0 0 auto;font-size:11px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--ink-3)}
+.clist .row .badge.new{border-color:rgba(47,107,69,.4);color:var(--ok);background:#eef5ef}
+
+/* category index */
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.cat{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:11px 12px;display:flex;flex-direction:column;gap:3px;
+}
+.cat b{font-size:14px;color:var(--main)}
+.cat span{font-size:12px;color:var(--ink-3)}
+.cat em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--accent)}
+
+/* deep analysis */
+.article{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,30px)}
+.article h2{font-size:clamp(20px,2.5vw,25px);color:var(--main);margin-bottom:6px}
+.article .by{font-size:12px;color:var(--ink-3);font-family:var(--mono);margin-bottom:18px;display:block}
+.article h3{font-size:16.5px;color:var(--main-2);margin:24px 0 8px;padding-left:10px;border-left:4px solid var(--accent-2)}
+.article p{font-size:15px;color:var(--ink-2)}
+.article p strong{color:var(--ink);font-weight:700}
+.article blockquote{
+  margin:14px 0;padding:10px 14px;border-left:3px solid var(--main-2);
+  background:#f3f0e6;color:var(--ink-2);font-size:14.5px;border-radius:0 var(--r-sm) var(--r-sm) 0;
+}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 4px}
+.tbl th,.tbl td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+.tbl th{background:#efece1;color:var(--main);font-weight:600;white-space:nowrap}
+.tbl td code{font-family:var(--mono);font-size:12px;background:#f0ede2;padding:0 4px;border-radius:3px}
+.check{font-family:var(--mono);font-size:12.5px;color:var(--main-2)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:12px 0}
+.steps li{counter-increment:s;position:relative;padding:0 0 12px 38px;border-left:2px solid var(--line-soft);margin-left:12px}
+.steps li:last-child{border-left-color:transparent;padding-bottom:0}
+.steps li::before{
+  content:counter(s);position:absolute;left:-13px;top:-2px;width:24px;height:24px;
+  display:grid;place-items:center;border-radius:50%;background:var(--main);color:#fff;
+  font-family:var(--mono);font-size:12px;
+}
+.steps b{color:var(--main)}
+
+/* guide / experience */
+.guide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.guide{grid-template-columns:1fr}}
+.gcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.gcard h3{font-size:14.5px;color:var(--main);margin-bottom:6px}
+.gcard p{font-size:13.5px;color:var(--ink-2)}
+.gcard .kv{font-family:var(--mono);font-size:12px;color:var(--accent)}
+
+/* compare panel */
+.panel{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);
+  border-radius:var(--r);overflow:hidden;background:var(--paper);
+}
+@media (max-width:640px){.panel{grid-template-columns:1fr}}
+.pcol{padding:14px 16px}
+.pcol+.pcol{border-left:1px solid var(--line)}
+@media (max-width:640px){.pcol+.pcol{border-left:0;border-top:1px solid var(--line)}}
+.pcol h3{font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.pcol.fact h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--ok)}
+.pcol.say h3::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--warn)}
+.pcol ul{padding-left:1.1em;font-size:13.5px;color:var(--ink-2)}
+.pcol li{margin-bottom:5px}
+.pcol .src{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);display:block;margin-top:8px}
+
+/* timeline */
+.timeline{position:relative;padding-left:20px;border-left:2px solid var(--line-soft);margin-left:6px}
+.tl{position:relative;padding:0 0 16px 0}
+.tl::before{content:"";position:absolute;left:-27px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--main-2)}
+.tl time{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.04em}
+.tl h3{font-size:14.5px;margin:2px 0 3px;color:var(--main)}
+.tl p{font-size:13px;color:var(--ink-2);margin:0}
+
+/* reputation tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.tiers{grid-template-columns:1fr}}
+.tier{border-radius:var(--r);padding:14px 15px;border:1px solid var(--line);background:var(--paper)}
+.tier .lv{font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:7px}
+.tier.a{border-top:3px solid var(--ok)} .tier.a .lv{background:#e7f0e8;color:var(--ok)}
+.tier.b{border-top:3px solid var(--warn)} .tier.b .lv{background:#f7eed9;color:var(--warn)}
+.tier.c{border-top:3px solid var(--bad)} .tier.c .lv{background:#f6e3e3;color:var(--bad)}
+.tier h3{font-size:14.5px;margin-bottom:5px;color:var(--main)}
+.tier p{font-size:13px;color:var(--ink-2);margin:0}
+
+/* faq */
+details{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:8px;overflow:hidden}
+details[open]{border-color:var(--main-2);box-shadow:var(--sh)}
+summary{
+  cursor:pointer;padding:12px 15px;font-size:14.5px;font-weight:600;color:var(--main);
+  display:flex;gap:10px;align-items:flex-start;list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"＋";color:var(--accent);font-family:var(--mono);flex:0 0 auto}
+details[open] summary::before{content:"－"}
+details .ans{padding:0 15px 13px 40px;font-size:13.5px;color:var(--ink-2)}
+details .ans p{margin:0 0 .5em}
+
+/* comments */
+.cmts{display:flex;flex-direction:column;gap:10px}
+.cmt{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 14px}
+.cmt .who{display:flex;gap:9px;align-items:center;font-size:12.5px;color:var(--ink-3);margin-bottom:5px}
+.cmt .av{width:24px;height:24px;border-radius:50%;background:var(--main-2);color:#fff;display:grid;place-items:center;font-size:11px;font-family:var(--mono)}
+.cmt .who b{color:var(--ink);font-weight:600;font-size:13px}
+.cmt .who time{margin-left:auto;font-family:var(--mono);font-size:11.5px}
+.cmt p{font-size:13.5px;margin:0;color:var(--ink-2)}
+.cmt .mention{background:#f1eee2;border-radius:3px;padding:0 3px;color:var(--main)}
+.cmt.bad .av{background:var(--bad)}
+
+/* tags */
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags a{
+  font-size:13px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink-2);
+}
+.tags a:hover{border-color:var(--main-2);color:var(--main);text-decoration:none;background:#f0f3ea}
+.tags a.hi{border-color:rgba(180,85,42,.4);color:var(--accent);background:#fdf3ea}
+
+/* news */
+.news{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:720px){.news{grid-template-columns:1fr}}
+.news a.n{display:block;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px}
+.news a.n:hover{text-decoration:none;border-color:var(--main-2);box-shadow:var(--sh)}
+.news a.n time{font-family:var(--mono);font-size:11.5px;color:var(--accent);display:block;margin-bottom:3px}
+.news a.n b{font-size:14px;color:var(--main);display:block;margin-bottom:3px;line-height:1.45}
+.news a.n span{font-size:12.5px;color:var(--ink-3);display:block;line-height:1.6}
+
+/* aside */
+.side-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px}
+.side-card h2,.side-card h3{font-size:14px;color:var(--main);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.side-card h2::before,.side-card h3::before{content:"";width:3px;height:14px;background:var(--accent-2);border-radius:2px}
+.side-nav{display:flex;flex-direction:column;gap:2px;position:sticky;top:112px}
+.side-nav a{
+  font-size:13.5px;padding:6px 10px;border-radius:var(--r-sm);color:var(--ink-2);
+  border-left:3px solid transparent;
+}
+.side-nav a:hover{background:#efeadd;text-decoration:none}
+.side-nav a.active{border-left-color:var(--accent);background:#f1ecdd;color:var(--main);font-weight:600}
+.mini{font-size:12.5px;color:var(--ink-3)}
+.mini b{color:var(--ink);font-family:var(--mono);font-size:12px}
+.rank{list-style:none;padding:0;margin:0;counter-reset:rk}
+.rank li{counter-increment:rk;display:flex;gap:9px;padding:7px 0;border-top:1px dashed var(--line-soft);font-size:13px}
+.rank li:first-child{border-top:0}
+.rank li::before{content:counter(rk,decimal-leading-zero);font-family:var(--mono);font-size:11.5px;color:var(--accent);flex:0 0 auto}
+.rank a{color:var(--ink-2)}
+.rank a:hover{color:var(--main)}
+.rank .sc{display:block;font-size:11.5px;color:var(--ink-3)}
+.quote{background:linear-gradient(160deg,#12352f,#1c4a43);color:#eae4d3;border-radius:var(--r);padding:16px 17px;border:0}
+.quote p{font-size:13.5px;margin:0 0 8px;line-height:1.7}
+.quote cite{font-style:normal;font-size:12px;color:var(--accent-2)}
+.quote .qhead{font-size:11.5px;letter-spacing:.14em;color:#9fb3a7;margin-bottom:7px;display:block}
+
+/* footer */
+footer.site{background:#12211d;color:#c9c3b3;border-top:4px solid var(--main-2);margin-top:10px}
+.foot-top{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,.8fr));gap:22px;padding:clamp(24px,4vw,40px) 0 22px}
+@media (max-width:880px){.foot-top{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.foot-top{grid-template-columns:1fr}}
+.foot-brand .fb{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.foot-brand .fb svg{width:32px;height:32px}
+.foot-brand .fb strong{color:#fff;font-size:15px;letter-spacing:.02em}
+.foot-brand p{font-size:13px;color:#9ea99b;line-height:1.75}
+.fcol h3{font-size:13px;color:#fff;margin-bottom:9px;letter-spacing:.06em}
+.fcol a{display:block;font-size:12.5px;color:#a8b2a4;padding:3px 0}
+.fcol a:hover{color:var(--accent-2);text-decoration:none}
+.foot-note{border-top:1px solid rgba(255,255,255,.1);padding:14px 0;font-size:12px;color:#8b968a;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+.foot-note .mono{color:#7d887b}
+#toTop{
+  position:fixed;right:16px;bottom:20px;z-index:70;width:42px;height:42px;border-radius:50%;
+  background:var(--main);color:#fff;border:1px solid rgba(255,255,255,.18);cursor:pointer;
+  display:none;place-items:center;box-shadow:0 6px 18px rgba(15,46,43,.35);font-size:16px;
+}
+#toTop.on{display:grid}
+#toTop:hover{background:var(--main-2)}
+
+@media (max-width:860px){
+  nav.top{display:none;order:5;flex-basis:100%;flex-direction:column;gap:0;margin-left:0;border-top:1px solid var(--line);padding-top:8px}
+  nav.top.open{display:flex}
+  nav.top a{padding:9px 6px;border-radius:var(--r-sm);border-bottom:1px solid var(--line-soft)}
+  .menu-btn{display:inline-block}
+  .head-in{gap:10px}
+  .search input{width:150px}
+}
+@media (max-width:420px){
+  .search input{width:112px}
+  .hero-stats b{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .btn:hover{transform:none}
+}
+html{scroll-behavior:smooth}
+</style>
+<script type="text/javascript" src="https://cdn.bdwgg.com/mh.js"></script>
+</head>
+<body>
+
+<div class="sticky-top">
+  <div class="notice" id="notice">
+    <div class="wrap">
+      <span class="dot" aria-hidden="true"></span>
+      <b>7086失效地址回家指南</b>
+      <span>更新：镜像入口 <time datetime="2026-11-08">11月8日</time> 复核 12 条，其中 3 条转入只读状态；证书时间轴已补至 11 月 5 日。</span>
+      <a href="/#updates">跳到最新更新</a>
+    </div>
+  </div>
+  <header class="site">
+    <div class="wrap head-in">
+      <a class="brand" href="/#top" aria-label="7086失效地址回家指南 首页">
+        <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#0f2e2b"/>
+          <path d="M14 44V22l10 12 8-14 8 14 10-12v22" fill="none" stroke="#f2b950" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="50" cy="15" r="4" fill="#b4552a"/>
+        </svg>
+        <span class="bt"><strong>7086失效地址回家指南</strong><span>ENTRY · CHECK · RETURN</span></span>
+      </a>
+      <nav class="top" id="topNav" aria-label="主题导航">
+        <a href="/#overview">失效概览</a>
+        <a href="/#featured">精选排查</a>
+        <a href="/#updates">最新更新</a>
+        <a href="/#cats">分类入口</a>
+        <a href="/#deep">深度解析</a>
+        <a href="/#guide">体验指南</a>
+        <a href="/#faq">常见问答</a>
+        <a href="/#talk">读者实测</a>
+      </nav>
+      <div class="head-tools">
+        <form class="search" id="searchForm" role="search" aria-label="站内查找">
+          <input id="q" type="search" placeholder="找镜像名或症状…" autocomplete="off" aria-describedby="searchOut">
+          <button type="submit" aria-label="查找">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          </button>
+          <span class="search-out" id="searchOut" role="status" aria-live="polite"></span>
+        </form>
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="topNav">菜单</button>
+      </div>
+    </div>
+  </header>
+</div>
+
+<div class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="kicker">旧入口排查 · 第 7 版</span>
+        <h1>7086失效地址回家指南</h1>
+        <p class="lead">老书签点开只剩一行报错、镜像页面半个月没动、群里传的“新后台”要求重新注册——这些情况各有各的查法。这里把解析异常、证书变化、镜像停更、账号迁移四类问题拆开，按先后顺序给排查动作。</p>
+        <div class="hero-cta">
+          <a class="btn a" href="/#guide">从第一步开始查</a>
+          <a class="btn b" href="/#deep">看完整判断依据</a>
+        </div>
+        <div class="hero-stats">
+          <div><b>42</b><span>条入口样本</span></div>
+          <div><b>12</b><span>个排查步骤</span></div>
+          <div><b>7</b><span>天复核周期</span></div>
+          <div><b>3</b><span>可信度分层</span></div>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 420 380" role="img">
+          <defs>
+            <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f2b950" stop-opacity=".9"/>
+              <stop offset="1" stop-color="#b4552a" stop-opacity=".55"/>
+            </linearGradient>
+          </defs>
+          <circle cx="210" cy="190" r="150" fill="none" stroke="#3f6f63" stroke-width="1" stroke-dasharray="4 7"/>
+          <circle cx="210" cy="190" r="108" fill="none" stroke="#3f6f63" stroke-width="1" stroke-dasharray="2 9"/>
+          <path d="M60 300 L140 230 L196 262 L268 168 L330 120" fill="none" stroke="url(#gA)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M330 120 L352 96 L344 132 Z" fill="#f2b950"/>
+          <g fill="#d9d3c1" font-family="ui-monospace,monospace" font-size="10">
+            <text x="44" y="320">MIRROR-01</text>
+            <text x="250" y="86">HOME</text>
+          </g>
+          <g stroke="#5d8a7c" stroke-width="1.4" fill="#12352f">
+            <rect x="64" y="86" width="86" height="58" rx="6"/>
+            <rect x="272" y="228" width="88" height="56" rx="6"/>
+            <rect x="168" y="132" width="84" height="50" rx="6"/>
+          </g>
+          <g fill="#8fb7a9" font-family="ui-monospace,monospace" font-size="9">
+            <text x="72" y="104">A 记录</text>
+            <text x="72" y="120">TTL 300</text>
+            <text x="280" y="246">证书</text>
+            <text x="280" y="262">11-05</text>
+            <text x="176" y="150">跳转链</text>
+            <text x="176" y="166">302 ×2</text>
+          </g>
+          <circle cx="210" cy="190" r="5" fill="#f2b950"/>
+          <circle cx="210" cy="190" r="14" fill="none" stroke="#f2b950" stroke-opacity=".5" stroke-width="1.2"/>
+        </svg>
+        <span class="art-cap">ENTRY MAP · v7</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="channels">
+  <div class="wrap" aria-label="频道导航">
+    <a href="/#cats">域名解析异常</a>
+    <a href="/#cats">证书与跳转链</a>
+    <a href="/#cats">镜像站停更</a>
+    <a href="/#cats">账号迁移核对</a>
+    <a href="/#cats">书签批量修复</a>
+    <a class="hot" href="/#deep">入口可信度判断</a>
+    <a href="/#cats">移动端打不开</a>
+    <a href="/#cats">运营商解析差异</a>
+    <a href="/#cats">仿冒页识别</a>
+    <a href="/#cats">历史公告回溯</a>
+    <a href="/#cats">代理与分流</a>
+    <a href="/#cats">离线存档</a>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <main>
+
+    <!-- 1 领域概览 -->
+    <section id="overview" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>失效现象先分清：四类问题、四种查法</h2>
+        <span class="tag">概览</span>
+        <span class="sub">截至 2026-11-08 的 42 条样本</span>
+      </div>
+      <div class="ov-grid">
+        <div class="ov">
+          <span class="n">TYPE 01</span>
+          <h3>解析层面没反应</h3>
+          <p>浏览器转圈到超时才报错，<code>nslookup</code> 返回 NXDOMAIN，说明域名没有有效 A 记录。11 月 6 日抽查的 9 条旧入口中，4 条属于这一类。</p>
+        </div>
+        <div class="ov">
+          <span class="n">TYPE 02</span>
+          <h3>能连上但证书报错</h3>
+          <p>页面跳到警告页，证书颁发者变成陌生机构或有效期只到停更前。多为托管方到期未续，少数是入口被他人接管。</p>
+        </div>
+        <div class="ov">
+          <span class="n">TYPE 03</span>
+          <h3>镜像能开但内容冻住</h3>
+          <p>首页日期停在上月，翻页 404，登录后数据对不上。11 月 8 日复核的 12 条镜像中，4 条超过 30 天没更新。</p>
+        </div>
+        <div class="ov">
+          <span class="n">TYPE 04</span>
+          <h3>要求重新注册的“新后台”</h3>
+          <p>域名陌生、要求手机号与邀请码、账号数据为空。这类页面与正主没有可验证的关联，按仿冒页处理更稳妥。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 精选内容推荐 -->
+    <section id="featured" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>精选排查笔记</h2>
+        <span class="sub">按出现频率排序</span>
+      </div>
+      <div class="feat">
+        <a class="feat-main" href="/#deep">
+          <img src="https://picsum.photos/seed/7086-entry-route/640/420" width="640" height="420" loading="lazy" alt="手写笔记上的域名跳转链与几个标注箭头">
+          <span class="veil">
+            <span class="meta">深度解析 · 11-07</span>
+            <h3>旧书签 301 跳到广告联盟域名，说明入口已经被接管</h3>
+            <p>拿 <code>curl -I</code> 跟三层跳转，终点域名决定这条书签还能不能改回来。</p>
+          </span>
+        </a>
+        <div class="feat-list">
+          <a class="fl" href="/#guide">
+            <span class="pill">01</span>
+            <span><h3>nslookup 返回 NXDOMAIN 时先别改 DNS</h3><p>换公共解析再试一次，排除本地运营商缓存。</p></span>
+          </a>
+          <a class="fl" href="/#guide">
+            <span class="pill">02</span>
+            <span><h3>镜像站证书从 Let's Encrypt 换成自签</h3><p>11 月 5 日见到的第三条样本，基本可判为临时搭建。</p></span>
+          </a>
+          <a class="fl" href="/#faq">
+            <span class="pill">03</span>
+            <span><h3>账号数据无法迁移，先比对注册时间</h3><p>老账号的注册年份是最好用的对照字段。</p></span>
+          </a>
+          <a class="fl" href="/#talk">
+            <span class="pill">04</span>
+            <span><h3>读者实测：移动网络能开、宽带打不开</h3><p>两个运营商解析结果不同，11 月 4 日的记录。</p></span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 最新更新 -->
+    <section id="updates" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>最新更新</h2>
+        <span class="sub">最近 7 天复核记录</span>
+      </div>
+      <div class="clist">
+        <div class="row"><time datetime="2026-11-08">11-08</time><span class="t"><b>镜像入口 M-07 转入只读</b>：登录可查历史，提交功能关闭，页面脚注写着“只读维护”。</span><span class="badge new">新</span></div>
+        <div class="row"><time datetime="2026-11-08">11-08</time><span class="t">复核 12 条入口，3 条只读、4 条内容停更、5 条可用；可用项全部通过证书时间检查。</span><span class="badge new">新</span></div>
+        <div class="row"><time datetime="2026-11-07">11-07</time><span class="t">补记两条 301 跳转链，终点均落在 <code>ads-</code> 前缀的域名上，标注为“被接管”。</span><span class="badge">记录</span></div>
+        <div class="row"><time datetime="2026-11-06">11-06</time><span class="t">解析抽查 9 条旧入口：4 条 NXDOMAIN、3 条指向占位页、2 条正常。</span><span class="badge">抽查</span></div>
+        <div class="row"><time datetime="2026-11-05">11-05</time><span class="t">发现某镜像证书改为自签，签发时间 11-05，与主站停更间隔 19 天。</span><span class="badge">证书</span></div>
+        <div class="row"><time datetime="2026-11-04">11-04</time><span class="t">读者反馈移动网络可访问、家庭宽带超时，记录为运营商解析差异样本。</span><span class="badge">反馈</span></div>
+        <div class="row"><time datetime="2026-11-03">11-03</time><span class="t">书签修复脚本更新到 v3，支持把跳转终点写回原条目。</span><span class="badge">工具</span></div>
+      </div>
+    </section>
+
+    <!-- 4 分类入口 -->
+    <section id="cats" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>按问题类型找入口</h2>
+        <span class="sub">12 个类别</span>
+      </div>
+      <div class="cats">
+        <a class="cat" href="/#deep"><b>域名解析异常</b><span>NXDOMAIN、污染、缓存</span><em>9 条</em></a>
+        <a class="cat" href="/#deep"><b>证书与跳转链</b><span>颁发者、有效期、302</span><em>7 条</em></a>
+        <a class="cat" href="/#guide"><b>镜像站停更</b><span>首页日期、翻页 404</span><em>11 条</em></a>
+        <a class="cat" href="/#guide"><b>账号迁移核对</b><span>注册年份、绑定信息</span><em>5 条</em></a>
+        <a class="cat" href="/#guide"><b>书签批量修复</b><span>导出、替换、回写</span><em>4 条</em></a>
+        <a class="cat" href="/#deep"><b>入口可信度判断</b><span>三层分级与证据</span><em>3 层</em></a>
+        <a class="cat" href="/#faq"><b>移动端打不开</b><span>蜂窝与 Wi-Fi 差异</span><em>6 条</em></a>
+        <a class="cat" href="/#faq"><b>运营商解析差异</b><span>公共 DNS 对比</span><em>5 条</em></a>
+        <a class="cat" href="/#faq"><b>仿冒页识别</b><span>重新注册、邀请码</span><em>8 条</em></a>
+        <a class="cat" href="/#news"><b>历史公告回溯</b><span>停更声明、迁移通知</span><em>4 条</em></a>
+        <a class="cat" href="/#guide"><b>代理与分流</b><span>规则误伤、超时</span><em>3 条</em></a>
+        <a class="cat" href="/#news"><b>离线存档</b><span>快照、本地索引</span><em>2 条</em></a>
+      </div>
+    </section>
+
+    <!-- 5 深度解析（唯一主体阅读区） -->
+    <section id="deep" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>深度解析：入口失效后，先判断“谁还在维护”</h2>
+        <span class="sub">全文约 1200 字</span>
+      </div>
+      <article class="article">
+        <span class="by">更新 2026-11-08 · 基于 42 条入口样本与 6 份公告快照</span>
+
+        <p>判断一个老入口还能不能用，最省事的做法不是反复刷新，而是看它背后还有没有人承担维护成本。域名续费、证书签发、页面更新，这三件事都要花钱花时间。停止维护的入口通常先坏在证书上，其次是跳转链，最后才是解析记录——顺序反过来也常见，但很少三样同时完好。</p>
+
+        <h3>一、证书签发时间晚于主站停更，多是第三方接管</h3>
+        <p>11 月 5 日复核到的一条样本可以直接说明这套判断。主站在 <strong>2026-10-19</strong> 发布停更声明，页面写明“后续不再更新内容”。三天后，一个自称镜像的域名上线，首页排版照搬，但证书由 Let's Encrypt 改为自签，签发日期 <strong>2026-11-05</strong>，比停更声明晚 17 天。同一时段，该域名注册信息里出现了新的注册商。</p>
+        <p>这三条证据放在一起，结论偏向“有人在停更后重新搭站”，而不是原班人马迁移。可以反驳的地方在于：原团队也可能因预算改用了免费证书。但如果是同一团队，一般会保留原域名至少一次 301 跳转，而这条样本的旧域名直接 NXDOMAIN，没有过渡。</p>
+        <p>把判断拆成可核对的结构，是这样三行：</p>
+        <table class="tbl">
+          <thead><tr><th>观察项</th><th>样本值</th><th>指向</th></tr></thead>
+          <tbody>
+            <tr><td>证书签发时间</td><td>2026-11-05</td><td>晚于停更 17 天</td></tr>
+            <tr><td>旧域名状态</td><td>NXDOMAIN</td><td>无过渡跳转</td></tr>
+            <tr><td>注册商变更</td><td>有，10-22 前后</td><td>主体已换</td></tr>
+          </tbody>
+        </table>
+
+        <h3>二、镜像“能登录”不等于“数据还在”</h3>
+        <p>10 月 28 日到 11 月 2 日之间，有读者在三个镜像上试过同一组账号。结果是：两个能登录但列表为空，一个提示账号不存在。空列表的镜像，注册页可以走完流程，验证码也能收到，说明后端是活的，只是没有接入旧数据。这类站点更接近新建的独立站，拿旧账号去试有泄露风险。</p>
+        <p>可核对的对照方法是注册年份。老账号的注册年份、绑定邮箱域名后缀、最后一次登录日期，这三项在正规迁移里通常会保留。若三项全空，基本可以停下，不再输入密码。<strong>账号数据能不能对上，比页面像不像更能说明问题。</strong></p>
+        <blockquote>“11 月 1 日我按老邮箱登，页面能进，但列表是空的。翻到设置页，注册时间显示 2026-10-30，比我实际注册晚了四年。”——读者留言，2026-11-02</blockquote>
+
+        <h3>三、解析差异：同一地址在两种网络下的表现</h3>
+        <p>11 月 4 日收到的反馈里，移动网络能打开某镜像，家庭宽带持续超时。同一天用公共 DNS 查询，返回的 A 记录是两条不同网段的地址。运营商缓存 TTL 设为 300 秒，理论上五分钟就应刷新，实际过了一小时仍未一致。这类情况先换公共解析验证，再判断是本地缓存还是上游分发问题，比直接改 hosts 稳妥。</p>
+        <p>顺序上，先用 <code>nslookup 域名 1.1.1.1</code> 与不带参数的查询对比。两条结果不同，问题在本地或运营商；结果相同且都超时，问题在服务端。11 月 6 日抽查的 9 条旧入口里，4 条属于后者，没有修复可能。</p>
+
+        <h3>四、什么情况下值得继续等</h3>
+        <p>有三个信号同时出现时，等一周再看是合理的：主站公告里出现过“迁移中”字样、旧域名仍返回 302 而非 NXDOMAIN、新域名证书由同一机构签发且有效期覆盖到 2027 年。反之，只满足其中一条，就不必守着。10 月 19 日那份停更声明只写了“不再更新”，没提迁移，这类入口按关闭处理最省时间。</p>
+        <p>最后提醒一句：任何要求重新付费、填身份证号、拉人进群的“恢复通道”，都不属于入口排查的范畴。判断依据不在页面写得多像，而在它是否愿意给出可验证的历史信息。</p>
+      </article>
+    </section>
+
+    <!-- 6 体验指南：编号步骤 -->
+    <section id="guide" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>体验指南：从报错到结论的 7 步</h2>
+        <span class="sub">按顺序做，每步不超过 3 分钟</span>
+      </div>
+      <ol class="steps card pad">
+        <li><b>记录报错原文。</b>浏览器给的错误码（<code>DNS_PROBE_FINISHED_NXDOMAIN</code>、<code>ERR_CONNECTION_TIMED_OUT</code>、<code>ERR_CERT_AUTHORITY_INVALID</code>）指向不同层面，先抄下来。</li>
+        <li><b>换一个解析再查一次。</b>用 <code>nslookup 旧域名 8.8.8.8</code> 对照本地结果。两边都无记录，进入第 3 步；只有本地无记录，清缓存后重试。</li>
+        <li><b>跟跳转链。</b>命令行执行 <code>curl -I -L 旧地址</code>，看最终落点。落在陌生域名且带 <code>ads-</code> 前缀，标为被接管。</li>
+        <li><b>看证书。</b>点地址栏锁图标，记录颁发者与有效期。自签或有效期早于停更日期，降一级可信度。</li>
+        <li><b>核对账号字段。</b>注册年份、绑定邮箱后缀、最后登录日期，三项全空就停止输入密码。</li>
+        <li><b>查公告快照。</b>在存档站找停更声明原文，确认有没有“迁移”字样，以及声明日期。</li>
+        <li><b>决定去留。</b>三项信号齐（迁移字样、302 未断、证书同源），等一周；否则更新书签或删除。</li>
+      </ol>
+    </section>
+
+    <!-- 7 对照面板：事实与说法 -->
+    <section id="panel" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>对照面板：已核实的事实与流传的说法</h2>
+        <span class="sub">2026-11-08 整理</span>
+      </div>
+      <div class="panel">
+        <div class="pcol fact">
+          <h3>有出处的事实</h3>
+          <ul>
+            <li>停更声明发布于 2026-10-19，原文含“后续不再更新内容”。</li>
+            <li>镜像 M-07 页面脚注显示“只读维护”，日期 11-08。</li>
+            <li>11-05 样本证书为自签，签发时间晚于停更 17 天。</li>
+            <li>11-06 抽查 9 条旧入口，4 条 NXDOMAIN。</li>
+          </ul>
+          <span class="src">来源：公告快照、页面脚注、命令行查询记录</span>
+        </div>
+        <div class="pcol say">
+          <h3>待核实的说法</h3>
+          <ul>
+            <li>“下周会换新域名重新开放”——无公告出处，仅群聊转述。</li>
+            <li>“老账号数据都在，只是没导完”——与 11-02 空列表现象矛盾。</li>
+            <li>“某运营商已经屏蔽”——11-04 反馈只覆盖两种网络，样本不足。</li>
+            <li>“填邀请码能提前进”——无法验证，涉及个人信息，不采纳。</li>
+          </ul>
+          <span class="src">状态：转述或推测，未计入可信度分层</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 可信度分层 -->
+    <section id="tiers" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>镜像入口可信度分层</h2>
+        <span class="sub">按证据数量，不按页面美观度</span>
+      </div>
+      <div class="tiers">
+        <div class="tier a">
+          <span class="lv">A 层</span>
+          <h3>可继续使用</h3>
+          <p>证书与主站同源、有效期覆盖到 2027 年、账号字段可对上、页面在 7 天内有更新。目前 42 条样本中 5 条符合。</p>
+        </div>
+        <div class="tier b">
+          <span class="lv">B 层</span>
+          <h3>谨慎观察</h3>
+          <p>能登录但内容停更超过 30 天，或证书更换过但未解释原因。11 月 8 日复核的 12 条里 4 条在此层，建议只读不写。</p>
+        </div>
+        <div class="tier c">
+          <span class="lv">C 层</span>
+          <h3>按仿冒处理</h3>
+          <p>要求重新注册、索要邀请码、注册时间晚于停更声明、无任何历史页面。遇到这一类直接关页面，不输入任何信息。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 时间线 -->
+    <section id="timeline" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>事件时间线：从停更声明到只读维护</h2>
+        <span class="sub">10-19 至 11-08</span>
+      </div>
+      <div class="timeline">
+        <div class="tl"><time datetime="2026-10-19">10-19</time><h3>停更声明发布</h3><p>原页面写明“后续不再更新内容”，未提迁移计划，也未给出新地址。</p></div>
+        <div class="tl"><time datetime="2026-10-22">10-22</time><h3>旧域名注册信息变动</h3><p>注册商一栏出现变更记录，同日旧站仍可访问，页面内容未变。</p></div>
+        <div class="tl"><time datetime="2026-10-28">10-28</time><h3>首批镜像上线</h3><p>两个域名同时出现，排版照搬，其中一个要求重新注册。</p></div>
+        <div class="tl"><time datetime="2026-11-01">11-01</time><h3>账号空列表反馈</h3><p>读者用老邮箱登录成功，列表为空，设置页注册时间显示 10-30。</p></div>
+        <div class="tl"><time datetime="2026-11-04">11-04</time><h3>移动与宽带表现不一</h3><p>同一地址在两种网络下结果不同，公共 DNS 返回两条不同网段记录。</p></div>
+        <div class="tl"><time datetime="2026-11-05">11-05</time><h3>证书改自签</h3><p>签发时间比停更晚 17 天，成为判断第三方接管的关键证据。</p></div>
+        <div class="tl"><time datetime="2026-11-08">11-08</time><h3>M-07 转只读</h3><p>页面脚注标注“只读维护”，提交功能关闭，历史内容仍可查。</p></div>
+      </div>
+    </section>
+
+    <!-- 10 FAQ -->
+    <section id="faq" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>常见问答</h2>
+        <span class="sub">8 个高频问题</span>
+      </div>
+      <details open>
+        <summary>7086 旧地址打不开，先查解析还是先换浏览器？</summary>
+        <div class="ans"><p>先查解析。浏览器差异只在页面能连但渲染异常时才有意义；如果连 DNS 记录都拿不到，换浏览器没有用。命令行执行一次 <code>nslookup</code>，看有没有返回 A 记录，是成本最低的第一步。</p></div>
+      </details>
+      <details>
+        <summary>镜像站页面能开，但点任何链接都是 404，算不算还能用？</summary>
+        <div class="ans"><p>不算。只留首页的站点通常只保留了静态壳，分类、详情、翻页都指向已删除的路由。11 月 8 日复核的 12 条里，有 3 条属于这种“空壳可开”，已归入 B 层。</p></div>
+      </details>
+      <details>
+        <summary>证书提示不安全，继续访问会怎样？</summary>
+        <div class="ans"><p>风险主要在输入环节。只浏览公开内容，风险有限；一旦页面要求输入账号、手机号、支付信息，就不该继续。自签证书说明签发方不是受信任机构，页面内容也可能被中间人替换。</p></div>
+      </details>
+      <details>
+        <summary>收藏夹里几十条老链接，能批量处理吗？</summary>
+        <div class="ans"><p>可以，但顺序要清楚。先导出书签为 HTML，用脚本对每条发 HEAD 请求，记录状态码与跳转终点，再人工确认终点域名。11 月 3 日更新的 v3 脚本支持把跳转终点写回原条目，不覆盖原链接备注。</p></div>
+      </details>
+      <details>
+        <summary>为什么手机上能打开，电脑上打不开？</summary>
+        <div class="ans"><p>常见原因是两条网络走了不同解析。移动网络与家庭宽带的上游 DNS 缓存不同，TTL 到期时间也不一致。11 月 4 日的记录里，同一域名在两个网络下解析到不同网段，过了一小时才趋于一致。</p></div>
+      </details>
+      <details>
+        <summary>要求填邀请码的新后台，可能是真的吗？</summary>
+        <div class="ans"><p>可能性低。正规迁移一般沿用原有账号体系，不会要求老用户从零注册，更不会用邀请码做门槛。判断时看注册时间字段：如果新站显示的注册时间晚于停更声明，基本可排除。</p></div>
+      </details>
+      <details>
+        <summary>停更声明里没写迁移，是不是就彻底关了？</summary>
+        <div class="ans"><p>多数情况是。10 月 19 日那份声明只写了“不再更新内容”，没给新地址，三天后旧域名仍返回 NXDOMAIN。没有过渡跳转的关闭，比带 301 的迁移更彻底。</p></div>
+      </details>
+      <details>
+        <summary>有没有必要为老入口保留离线存档？</summary>
+        <div class="ans"><p>看用途。需要长期引用具体条目的话，存一份本地快照比反复找镜像稳。存档时记下抓取日期与页面标题，日后核对版本差异用得上。11 月新增的两条样本就是这么留下的。</p></div>
+      </details>
+    </section>
+
+    <!-- 11 用户评论 -->
+    <section id="talk" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>读者实测与留言</h2>
+        <span class="sub">已隐去可识别信息</span>
+      </div>
+      <div class="cmts">
+        <div class="cmt">
+          <div class="who"><span class="av">H</span><b>灰色背包</b><time datetime="2026-11-08">11-08</time></div>
+          <p>按步骤查到 <span class="mention">M-07</span> 是只读状态，脚注那行字很小，不翻到底看不见。这个细节要是不写，我可能还在等它恢复提交。</p>
+        </div>
+        <div class="cmt">
+          <div class="who"><span class="av">L</span><b>林间慢跑</b><time datetime="2026-11-07">11-07</time></div>
+          <p>curl 跟跳转这招好用。<span class="mention">旧书签</span>最后一跳落到 ads 开头那串域名，难怪总弹窗。删了，不折腾了。</p>
+        </div>
+        <div class="cmt bad">
+          <div class="who"><span class="av">K</span><b>线圈绕三圈</b><time datetime="2026-11-06">11-06</time></div>
+          <p>说句不中听的，<span class="mention">证书自签</span>那条判断太绝对了。我见过个人维护的小站用自签用了两年，稳定得很。是不是也该看内容更新频率再下结论。</p>
+        </div>
+        <div class="cmt">
+          <div class="who"><span class="av">Z</span><b>周末修表</b><time datetime="2026-11-05">11-05</time></div>
+          <p>注册年份对照这招救了我。<span class="mention">新后台</span>显示 2026-10-30 注册，我实际是 2021 年。当场走人，没输密码。</p>
+        </div>
+        <div class="cmt">
+          <div class="who"><span class="av">W</span><b>温吞水杯</b><time datetime="2026-11-04">11-04</time></div>
+          <p>移动能开宽带不能开，还真碰上了。换公共 DNS 后两边一致，问题在我这边路由器缓存。之前一直以为是站点挂了。</p>
+        </div>
+        <div class="cmt">
+          <div class="who"><span class="av">D</span><b>地板上的猫</b><time datetime="2026-11-03">11-03</time></div>
+          <p>时间线里 <span class="mention">10-22 注册信息变动</span>这一条挺关键，之前没人提。不过更想知道 10-19 声明原文的存档地址，翻了一圈没找到。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 相关资讯 -->
+    <section id="news" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>相关资讯与公告回溯</h2>
+        <span class="sub">按日期倒序</span>
+      </div>
+      <div class="news">
+        <a class="n" href="/#timeline"><time datetime="2026-11-08">2026-11-08</time><b>M-07 页面脚注出现“只读维护”</b><span>提交按钮置灰，历史内容可查，未见恢复时间说明。</span></a>
+        <a class="n" href="/#deep"><time datetime="2026-11-06">2026-11-06</time><b>解析抽查 9 条旧入口，4 条无记录</b><span>公共 DNS 与本地结果对照完成，未发现污染迹象，属自然到期。</span></a>
+        <a class="n" href="/#guide"><time datetime="2026-11-03">2026-11-03</time><b>书签修复脚本更新到 v3</b><span>新增跳转终点回写，保留原备注字段，支持 HTML 导入导出。</span></a>
+        <a class="n" href="/#talk"><time datetime="2026-11-02">2026-11-02</time><b>老邮箱登录成功但列表为空</b><span>设置页显示注册时间 2026-10-30，与用户实际注册年份相差四年。</span></a>
+        <a class="n" href="/#timeline"><time datetime="2026-10-28">2026-10-28</time><b>两个镜像域名同日上线</b><span>排版与原站一致，其中一个要求重新注册并填写邀请码。</span></a>
+        <a class="n" href="/#panel"><time datetime="2026-10-19">2026-10-19</time><b>原站发布停更声明</b><span>原文含“后续不再更新内容”，未提及迁移与替代地址。</span></a>
+      </div>
+    </section>
+
+    <!-- 13 相关推荐标签 -->
+    <section id="tags" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>相关推荐</h2>
+        <span class="sub">点击跳转对应栏目</span>
+      </div>
+      <div class="tags">
+        <a class="hi" href="/#deep">7086入口被打包成跳转页怎么办</a>
+        <a href="/#guide">旧书签批量检测脚本</a>
+        <a href="/#faq">镜像站证书自签安全吗</a>
+        <a href="/#tiers">镜像入口可信度分层标准</a>
+        <a href="/#guide">运营商DNS缓存清理顺序</a>
+        <a href="/#faq">新后台要求邀请码</a>
+        <a href="/#updates">近七天入口复核记录</a>
+        <a href="/#timeline">停更声明发布时间线</a>
+        <a href="/#faq">离线存档怎么留证据</a>
+        <a href="/#panel">事实与说法对照表</a>
+        <a href="/#talk">读者实测留言</a>
+      </div>
+    </section>
+
+    <!-- 14 创作者证言（补充板块） -->
+    <section id="voice" class="scroll-anchor">
+      <div class="sec-head">
+        <h2>维护者说：复核为什么是七天一次</h2>
+        <span class="sub">维护记录摘录</span>
+      </div>
+      <div class="card pad">
+        <p style="font-size:14.5px;color:var(--ink-2)">最初的复核周期是三十天。10 月 28 日两个镜像同日上线之后，样本变化速度明显加快，有个入口从能登录到转只读只隔了四天。10 月 30 日把周期改成七天，并在每次复核里加一项证书签发时间比对。</p>
+        <p style="font-size:14.5px;color:var(--ink-2)">代价是工作量翻了三倍。现在 42 条样本跑一轮大约 90 分钟，其中一半时间花在确认账号字段是否保留。10 月 31 日试过用脚本自动填账号，走了两步就停了——自动登录触发了对方的风控，反而拿不到有效信息。</p>
+        <p class="mini" style="margin:0">记录人：入口复核组 · 最后更新 <time datetime="2026-11-08">2026-11-08</time></p>
+      </div>
+    </section>
+
+  </main>
+
+  <aside>
+    <div class="side-card">
+      <div class="side-nav" id="sideNav" aria-label="栏目快捷导航">
+        <h3 style="padding-left:10px">本页栏目</h3>
+        <a href="/#overview">失效概览</a>
+        <a href="/#featured">精选排查</a>
+        <a href="/#updates">最新更新</a>
+        <a href="/#cats">分类入口</a>
+        <a href="/#deep">深度解析</a>
+        <a href="/#guide">体验指南</a>
+        <a href="/#panel">对照面板</a>
+        <a href="/#tiers">可信度分层</a>
+        <a href="/#timeline">事件时间线</a>
+        <a href="/#faq">常见问答</a>
+        <a href="/#talk">读者实测</a>
+        <a href="/#news">相关资讯</a>
+        <a href="/#tags">相关推荐</a>
+        <a href="/#voice">维护者说</a>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <h2>本周复核快照</h2>
+      <p class="mini">复核日期 <b>2026-11-08</b> · 样本 <b>42</b> 条</p>
+      <p class="mini" style="margin-bottom:6px">A 层 <b>5</b> · B 层 <b>4</b> · C 层 <b>11</b> · 无记录 <b>22</b></p>
+      <p class="mini">7 天内新增只读记录 <b>3</b> 条，证书变更 <b>2</b> 条。</p>
+    </div>
+
+    <div class="side-card">
+      <h2>入口症状检索榜</h2>
+      <ol class="rank">
+        <li><a href="/#faq">页面一直转圈后超时<span class="sc">涉及 9 条</span></a></li>
+        <li><a href="/#faq">证书提示不安全<span class="sc">涉及 7 条</span></a></li>
+        <li><a href="/#guide">登录后列表为空<span class="sc">涉及 5 条</span></a></li>
+        <li><a href="/#guide">点链接跳广告页<span class="sc">涉及 4 条</span></a></li>
+        <li><a href="/#faq">只有首页能开<span class="sc">涉及 3 条</span></a></li>
+      </ol>
+    </div>
+
+    <div class="side-card quote">
+      <span class="qhead">读者原话</span>
+      <p>“判断一个入口还能不能用，看它有没有人续证书就够了。这句话我信，比看页面新旧靠谱。”</p>
+      <cite>—— 11 月 6 日留言</cite>
+    </div>
+
+    <div class="side-card">
+      <h2>固定链接格式</h2>
+      <p class="mini">页内交叉引用统一为 <span class="mono">/#栏目ID</span>，例如 <a href="/#faq" class="mono">/#faq</a>。不设短链跳转，避免二次失效。</p>
+    </div>
+  </aside>
+</div>
+
+<footer class="site" id="footer">
+  <div class="wrap foot-top">
+    <div class="foot-brand">
+      <div class="fb">
+        <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#1c4a43"/>
+          <path d="M14 44V22l10 12 8-14 8 14 10-12v22" fill="none" stroke="#f2b950" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <strong>7086失效地址回家指南</strong>
+      </div>
+      <p>把旧入口的失效拆成解析、证书、内容、账号四层，逐层给证据和顺序，帮人少试错、少填资料。</p>
+    </div>
+    <div class="fcol">
+      <h3>排查栏目</h3>
+      <a href="/#overview">失效概览</a>
+      <a href="/#guide">体验指南</a>
+      <a href="/#panel">对照面板</a>
+      <a href="/#tiers">可信度分层</a>
+    </div>
+    <div class="fcol">
+      <h3>证据与更新</h3>
+      <a href="/#updates">最新更新</a>
+      <a href="/#timeline">事件时间线</a>
+      <a href="/#news">公告回溯</a>
+      <a href="/#voice">维护者说</a>
+    </div>
+    <div class="fcol">
+      <h3>互动</h3>
+      <a href="/#faq">常见问答</a>
+      <a href="/#talk">读者实测</a>
+      <a href="/#tags">相关推荐</a>
+      <a href="/#top">回到页首</a>
+    </div>
+  </div>
+  <div class="wrap foot-note">
+    <span>文中入口名称、日期与数字为示例数据，用于演示排查方法，不代表任何真实站点状态。</span>
+    <span class="mono">页面更新 <time datetime="2026-11-08">2026-11-08</time> · 对应“最新更新”与时间线</span>
+  </div>
+  <div class="wrap foot-note" style="border-top:0;padding-top:0">
+    <span>© 2026 7086失效地址回家指南 · 内容按排查记录整理</span>
+    <span class="mono">ENTRY GUIDE · v7</span>
+  </div>
+</footer>
+
+<button id="toTop" aria-label="回到顶部">↑</button>
+
+<script>
+(function(){
+  var menuBtn=document.getElementById('menuBtn');
+  var topNav=document.getElementById('topNav');
+  if(menuBtn&&topNav){
+    menuBtn.addEventListener('click',function(){
+      var open=topNav.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded',open?'true':'false');
+    });
+    topNav.addEventListener('click',function(e){
+      if(e.target.tagName==='A'&&window.innerWidth<=860){
+        topNav.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded','false');
+      }
+    });
+  }
+
+  var q=document.getElementById('q');
+  var out=document.getElementById('searchOut');
+  var form=document.getElementById('searchForm');
+  var corpus=[].slice.call(document.querySelectorAll('main section, main .cmt, main .clist .row, aside .side-card'));
+  function runSearch(){
+    var v=(q.value||'').trim().toLowerCase();
+    if(!v){out.classList.remove('on');out.textContent='';return;}
+    var hits=0;
+    corpus.forEach(function(el){
+      el.style.outline='';
+      if(el.textContent.toLowerCase().indexOf(v)>-1)hits++;
+    });
+    if(hits>0){
+      out.textContent='找到 '+hits+' 处相关段落';
+      var first=corpus.filter(function(el){return el.textContent.toLowerCase().indexOf(v)>-1;})[0];
+      if(first){first.style.outline='2px solid #b4552a';first.style.outlineOffset='3px';}
+    }else{
+      out.textContent='没有匹配内容，试试“证书”“镜像”“解析”';
+    }
+    out.classList.add('on');
+  }
+  if(form){
+    form.addEventListener('submit',function(e){e.preventDefault();runSearch();});
+    q.addEventListener('input',function(){
+      if(!q.value.trim()){out.classList.remove('on');out.textContent='';corpus.forEach(function(el){el.style.outline='';});}
+    });
+  }
+
+  var toTop=document.getElementById('toTop');
+  var links=[].slice.call(document.querySelectorAll('#sideNav a'));
+  var targets=links.map(function(a){
+    var id=a.getAttribute('href').split('#')[1];
+    return document.getElementById(id);
+  });
+  function onScroll(){
+    var y=window.scrollY||document.documentElement.scrollTop;
+    if(y>560){toTop.classList.add('on');}else{toTop.classList.remove('on');}
+    var idx=-1;
+    targets.forEach(function(t,i){
+      if(t&&t.getBoundingClientRect().top<=140)idx=i;
+    });
+    links.forEach(function(a,i){a.classList.toggle('active',i===idx);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+  if(toTop){toTop.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});}
+
+  document.querySelectorAll('a[href^="/#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=a.getAttribute('href').slice(2);
+      var el=document.getElementById(id);
+      if(el){
+        e.preventDefault();
+        var top=el.getBoundingClientRect().top+window.scrollY-112;
+        window.scrollTo({top:top,behavior:'smooth'});
+        history.replaceState(null,'','#'+id);
+        if(window.innerWidth<=860&&topNav.classList.contains('open')){
+          topNav.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');
+        }
+      }
+    });
+  });
+})();
+</script>
+</body>
+          </html>
